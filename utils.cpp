@@ -1,5 +1,6 @@
 #include "utils.hpp"
 
+//TODO make this better
 void timeCategories::increment(const long double timeMs) {
     //increments the appropriate counter for the calculation time category
     if (timeMs >= 18000000) ++thirtyMinOrMore;

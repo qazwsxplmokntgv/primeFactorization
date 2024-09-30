@@ -12,12 +12,16 @@ class statCollection {
 public:
     //inputCount == number of nums whose factorizations will be considered
     //recordCount == max number of fastest/slowest records to store
+    //maxInput == highest possible input
     statCollection(const unsigned long long inputCount, const size_t recordCount, const unsigned long long maxInput);
+    statCollection(const unsigned long long inputCount, const size_t recordCount);
     void printout(void) const;
     void noteNewTime(const factorizedNumInfo& newFactorization);
     void completeFinalCalculations(void);
 
 private:
+    void initialize(const size_t recordCount);
+
     //rank lists
     std::vector<factorizedNumInfo> fastest;
     std::vector<factorizedNumInfo> slowest;

@@ -1,7 +1,7 @@
 #include "sequence.hpp"
 
 void findUserRequestedFactorizations(unsigned long long count) {
-    statCollection stats(count, std::max((unsigned int)log10l(count), 3u), std::numeric_limits<unsigned long long>::max());
+    statCollection stats(count, std::max((unsigned int)log10l(count), 3u), 0);
     for (unsigned long long i = 1; i <= count; ++i) {
         factorizedNumInfo infoSet; 
 
@@ -42,7 +42,6 @@ void testRandomNumberFactorizations(unsigned long long count, const bool shouldR
         else 
             std::cout << "\033[A\33[2K\r" << 100 * i / count << "%\n";
 
-
         //times the operation
         auto start = std::chrono::steady_clock::now();
         infoSet.factorization = primeFactorization(infoSet.n);
@@ -53,10 +52,8 @@ void testRandomNumberFactorizations(unsigned long long count, const bool shouldR
             printFactorization(infoSet.factorization);
             std::cout << '\n' << infoSet.calcTime.count() << "ms\n\n";
         }
-
         stats.noteNewTime(infoSet);
     }
-
     stats.completeFinalCalculations();
     stats.printout();
 }

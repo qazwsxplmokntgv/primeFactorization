@@ -1,28 +1,37 @@
 #include "stats.hpp"
 
 statCollection::statCollection(const unsigned long long inputCount, const size_t recordCount, const unsigned long long maxInput) : count(inputCount), maxN(maxInput) {
-    fastest.resize(recordCount);
-    slowest.resize(recordCount);
-    mostFactors.resize(recordCount);
-    timesData.reserve(count);
-    for (factorizedNumInfo& info : fastest) info.calcTime = std::chrono::duration<long double, std::milli>(std::numeric_limits<long double>::max());
-    start = std::chrono::steady_clock::now();
+    initialize(recordCount);
+}
+
+statCollection::statCollection(const unsigned long long inputCount, const size_t recordCount) : count(inputCount), maxN(0)  {
+    initialize(recordCount);
 }
 
 void statCollection::printout(void) const {
     constexpr int rightPanelOffset = 64;
 
+    //stat printout header
     std::cout << "\033[1;4;97m--------------------------------------------------------------------------------------------------------------------------------\033[0m\n";
-    std::cout << count << " factorizations of numbers <= " << maxN << " calculated in " << fullSequenceRunDuration.count() << " seconds.\n\n";
+    std::cout << count << " factorizations";
+    //0 maxN is used to indicate manual entry - the upper rng bound is accordingly omitted
+    if (maxN) std:: cout << " of numbers <= " << maxN; 
+    std::cout << " calculated in " << fullSequenceRunDuration.count() << " seconds.\n\n";
 
+    //string stream used to format info blocks horizontally (to better fit in one screen)
     std::stringstream str; 
+    //info blocks on the fastest and slowest calculation times for factorizations
+    //shows calc time, the input, and the factorization itself
     std::cout << "\033[1;4;97m---Fastest Factorizations Attempted-----------------------------\033[0m";
-    std::cout << "\033[1;4;97m---Slowest Factorizations Attempted-----------------------------\033[0m\n";
+    std::cout << "\033[1;4;97m---Slowest Factorizations Attempted-----------------------------\033[0m\n" << std::left;
     for (size_t i = 0; i < fastest.size() && fastest[i].calcTime < std::chrono::duration<long double, std::milli>(std::numeric_limits<long double>::max()); ++i) {
+        //format is ranking: calculation time\n
         str << '#' << i + 1 << ": " << fastest[i].calcTime.count() << "ms";
-        std::cout << std::left << std::setw(rightPanelOffset) << str.str() << '#' << i + 1 << ": " << slowest[i].calcTime.count() << "ms\n";
+        //adds space between left and right panels
+        std::cout << std::setw(rightPanelOffset) << str.str() << '#' << i + 1 << ": " << slowest[i].calcTime.count() << "ms\n";
         str.str("");
 
+        //input == factorization\n\n
         str << fastest[i].n << " =";
         printFactorization(fastest[i].factorization, str);
         std::cout << std::setw(rightPanelOffset) << str.str() << slowest[i].n << " =";
@@ -41,8 +50,9 @@ void statCollection::printout(void) const {
         std::cout << "\n\n";
     }
 
+    //various statistical facts regarding calculation times 
     std::cout << "\033[1;4;97m---Calculation Times------------------------------------------------------------------------------------------------------------\033[0m\n";
-    str << fastest[0].calcTime.count() << "ms";
+    str << (count ? fastest[0].calcTime.count() : 0) << "ms";
     std::cout << "Q0: " << std::setw(20) << str.str() << "Harmonic Mean:      " << harmonMean.count() << "ms\n";
     str.str("");
     str << firstQuart.count() << "ms";
@@ -57,16 +67,18 @@ void statCollection::printout(void) const {
     str << slowest[0].calcTime.count() << "ms";
     std::cout << "Q4: " << std::setw(20) << str.str() << "Standard Deviation: " << stdDev.count() << "ms\n\n";
 
+    //prints an overview of the calculation time distribution
     categories.print();
 }
 
 void statCollection::noteNewTime(const factorizedNumInfo& newFactorization) {
 
+    //checks if the new time is elligible to join any of the rankings being tracked
     rankIfApplicable(newFactorization, fastest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem){ return newItem.calcTime.count() < existingItem.calcTime.count(); });
     rankIfApplicable(newFactorization, slowest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem){ return newItem.calcTime.count() > existingItem.calcTime.count(); });
     rankIfApplicable(newFactorization, mostFactors, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem){ return getFactorCount(newItem.factorization) > getFactorCount(existingItem.factorization); });
 
-    //totals a running sum of times
+    //totals a running sum of times for later use in calculating and average (used in turn for calculating deviations, variance, std deviation)
     runningSum += newFactorization.calcTime;
 
     //records the calculation time for calculation of a few statistical measures after completion
@@ -76,13 +88,13 @@ void statCollection::noteNewTime(const factorizedNumInfo& newFactorization) {
 void statCollection::completeFinalCalculations(void) {
     fullSequenceRunDuration = std::chrono::steady_clock::now() - start;
 
+    //avoid division by 0, 
     if (!count) return;
 
     //places the collected times in order
     std::sort(timesData.begin(), timesData.end());
 
     std::chrono::duration<long double, std::milli> interQuartileSum;
-    //i am sure there was a better, easier way. but this does work
     switch (count % 4) {
         case 0:  
             median = (timesData[count / 2] + timesData[count / 2 - 1]) / 2.;
@@ -115,7 +127,7 @@ void statCollection::completeFinalCalculations(void) {
     
     std::chrono::duration<long double, std::milli> sumReciprocals(0), sumLogs(0), sumSquaredDeviation(0);
     for (const std::chrono::duration<long double, std::milli> time : timesData) {
-        categories.increment(time.count()); //to be optimized
+        categories.increment(time.count()); 
         //totalling of several sums to later be used in calculating respective means
         sumReciprocals += std::chrono::duration<long double, std::milli>(1 / time.count());
         sumLogs += std::chrono::duration<long double, std::milli>(logl(time.count()));
@@ -127,4 +139,13 @@ void statCollection::completeFinalCalculations(void) {
     geoMean = std::chrono::duration<long double, std::milli>(expl(sumLogs.count() / count));
     iqMean = std::chrono::duration<long double, std::milli>(interQuartileSum * 2. / count);
     stdDev = std::chrono::duration<long double, std::milli>(sqrtl(sumSquaredDeviation.count() / count));
+}
+
+void statCollection::initialize(const size_t recordCount) {
+    fastest.resize(recordCount);
+    slowest.resize(recordCount);
+    mostFactors.resize(recordCount);
+    timesData.reserve(count);
+    for (factorizedNumInfo& info : fastest) info.calcTime = std::chrono::duration<long double, std::milli>(std::numeric_limits<long double>::max());
+    start = std::chrono::steady_clock::now();
 }

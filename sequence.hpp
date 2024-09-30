@@ -15,4 +15,4 @@ void findUserRequestedFactorizations(unsigned long long count);
 
 //randomly generates several numbers and processes them as findUserRequestedFactorizations() does. 
 //prints several statistics upon conclusion
-void testRandomNumberFactorizations(unsigned long long count, const bool shouldReportEachFactorization, const unsigned long long maxN = std::numeric_limits<unsigned long long>::max());
+void testRandomNumberFactorizations(unsigned long long count, const bool shouldReportEachFactorization, const unsigned long long maxN);

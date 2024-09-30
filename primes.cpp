@@ -45,12 +45,16 @@ std::vector<factor> primeFactorization(unsigned long long n) {
     return basePowers;
 }
 
+bool isPrime(unsigned long long n) {
+    return isPrime(n, 5);
+}
+
 bool isPrime(unsigned long long n, unsigned long long potentialFactorFloor) {
     //this switch is slightly faster than any obvious bitwise approaches tested so far, which all need to first check (n < 4)
     switch (n) {
-        [[unlikely]] case 0u: [[fallthrough]];
+        [[unlikely]] case 0u: 
         [[unlikely]] case 1u: return false;
-        case 2u: [[fallthrough]];
+        case 2u: 
         case 3u: return true;
     }
 
