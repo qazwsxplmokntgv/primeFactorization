@@ -1,8 +1,10 @@
 #include "utils.hpp"
 
-//TODO make this better
 void timeCategories::increment(const long double timeMs) {
     //increments the appropriate counter for the calculation time category
+    //reverse this order with different conditions is likely better in performance due to nature of data
+    //however this is much more readable 
+    //TODO find compromise on that
     if (timeMs >= 18000000) ++thirtyMinOrMore;
     else if (timeMs >= 6000000) ++tenMinOrMore;
     else if (timeMs >= 3000000) ++fiveMinOrMore;
@@ -23,15 +25,16 @@ void timeCategories::increment(const long double timeMs) {
 }
 
 void timeCategories::print(void) const {
+    //prints each counter, in two columns
     std::cout << "\033[1;4;97m---Counts (fastest applicable category only)------------------------------------------------------------------------------------\033[0m\n"
-        << "<   1   μs: " << std::setw(12) << subMicro           << ">=  3  sec: " << threeSecOrMore  << '\n'        
-        << ">=  1   μs: " << std::setw(12) << microOrMore        << ">=  5  sec: " << fiveSecOrMore   << '\n'      
-        << ">= .25  ms: " << std::setw(12) << quarterMilliOrMore << ">= 10  sec: " << tenSecOrMore    << '\n'        
-        << ">= .5   ms: " << std::setw(12) << halfMilliOrMore    << ">= 30  sec: " << thirtySecOrMore << '\n'     
-        << ">=  1   ms: " << std::setw(12) << milliOrMore        << ">=  1  min: " << minOrMore       << '\n'        
-        << ">= .25 sec: " << std::setw(12) << quarterSecOrMore   << ">=  5  min: " << fiveMinOrMore   << '\n'      
-        << ">= .5  sec: " << std::setw(12) << halfSecOrMore      << ">= 10  min: " << tenMinOrMore    << '\n'        
-        << ">=  1  sec: " << std::setw(12) << secOrMore          << ">= 30  min: " << thirtyMinOrMore << "\n\n";      
+        << "<   1  μs: " << std::setw(13) << subMicro           << ">=  3  sec: " << threeSecOrMore  << '\n'        
+        << ">=  1  μs: " << std::setw(13) << microOrMore        << ">=  5  sec: " << fiveSecOrMore   << '\n'      
+        << ">=  ¼  ms: " << std::setw(13) << quarterMilliOrMore << ">= 10  sec: " << tenSecOrMore    << '\n'        
+        << ">=  ½  ms: " << std::setw(13) << halfMilliOrMore    << ">= 30  sec: " << thirtySecOrMore << '\n'     
+        << ">=  1  ms: " << std::setw(13) << milliOrMore        << ">=  1  min: " << minOrMore       << '\n'        
+        << ">=  ¼ sec: " << std::setw(13) << quarterSecOrMore   << ">=  5  min: " << fiveMinOrMore   << '\n'      
+        << ">=  ½ sec: " << std::setw(13) << halfSecOrMore      << ">= 10  min: " << tenMinOrMore    << '\n'        
+        << ">=  1 sec: " << std::setw(13) << secOrMore          << ">= 30  min: " << thirtyMinOrMore << "\n\n";      
 }
 
 void printFactorization(const std::vector<factor>& factorization, std::ostream& stream) {
@@ -47,7 +50,7 @@ void printFactorization(const std::vector<factor>& factorization, std::ostream& 
     }
 }
 
-void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, const std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>& comparison) {
+void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, const std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison) {
     //for each stored value, 
     for (size_t i = 0; i < existingRankings.size(); ++i) { 
         //find if the new factorization outranks any existing ranked factorizations

@@ -16,7 +16,7 @@ public:
     statCollection(const unsigned long long inputCount, const size_t recordCount, const unsigned long long maxInput);
     statCollection(const unsigned long long inputCount, const size_t recordCount);
     void printout(void) const;
-    void noteNewTime(const factorizedNumInfo& newFactorization);
+    void handleNewTime(factorizedNumInfo&& newFactorization);
     void completeFinalCalculations(void);
 
 private:
@@ -33,6 +33,7 @@ private:
     
     //counts of divisions of calcTimes
     timeCategories categories;
+
 
     std::chrono::steady_clock::time_point start;
 

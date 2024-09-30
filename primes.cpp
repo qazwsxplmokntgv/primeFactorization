@@ -9,7 +9,7 @@ std::vector<factor> primeFactorization(unsigned long long n) {
     if (n > 1u) {
         uint_fast8_t twosCount = 0;
         for (; !(n & 0b1); ++twosCount) n >>= 1;
-        if (twosCount) basePowers.push_back({2u, twosCount});
+        if (twosCount) basePowers.emplace_back(2u, twosCount);
     }
 
     //value which sweeps across all odd primes until reaching the value of each of n's prime factors,
@@ -45,11 +45,11 @@ std::vector<factor> primeFactorization(unsigned long long n) {
     return basePowers;
 }
 
-bool isPrime(unsigned long long n) {
+inline bool isPrime(unsigned long long n) {
     return isPrime(n, 5);
 }
 
-bool isPrime(unsigned long long n, unsigned long long potentialFactorFloor) {
+inline bool isPrime(unsigned long long n, unsigned long long potentialFactorFloor) {
     //this switch is slightly faster than any obvious bitwise approaches tested so far, which all need to first check (n < 4)
     switch (n) {
         [[unlikely]] case 0u: 
@@ -62,10 +62,10 @@ bool isPrime(unsigned long long n, unsigned long long potentialFactorFloor) {
     if (n % 2u == 0 || n % 3u == 0) return false;
 
     //greatest integer <= the sqrt of n
-    const unsigned long long maxLessorDivisor = sqrtl(n);
+    const unsigned long maxLessorDivisor = sqrt(n);
 
     //iterates through all odd numbers from at least 5 through the greatest odd int <= n's sqrt inclusive
-    for (unsigned long long i = potentialFactorFloor > 5u ? potentialFactorFloor : 5u; i <= maxLessorDivisor; i += 2u) {
+    for (unsigned long long i = potentialFactorFloor > 5u ? potentialFactorFloor : 5; i <= maxLessorDivisor; i += 2u) {
         //skip multiples of 3 (very common case); severely diminishing returns for numbers beyond this
         //additionally checking for 5 heuristically appears to slow runtime on average by about 1.5x, slightly worse than case with no such skips at all (~1.4x)
         if (i % 3 == 0) i += 2u;

@@ -71,7 +71,7 @@ void statCollection::printout(void) const {
     categories.print();
 }
 
-void statCollection::noteNewTime(const factorizedNumInfo& newFactorization) {
+void statCollection::handleNewTime(factorizedNumInfo&& newFactorization) {
 
     //checks if the new time is elligible to join any of the rankings being tracked
     rankIfApplicable(newFactorization, fastest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem){ return newItem.calcTime.count() < existingItem.calcTime.count(); });
@@ -80,6 +80,8 @@ void statCollection::noteNewTime(const factorizedNumInfo& newFactorization) {
 
     //totals a running sum of times for later use in calculating and average (used in turn for calculating deviations, variance, std deviation)
     runningSum += newFactorization.calcTime;
+
+    
 
     //records the calculation time for calculation of a few statistical measures after completion
     timesData.push_back(newFactorization.calcTime);
@@ -142,10 +144,9 @@ void statCollection::completeFinalCalculations(void) {
 }
 
 void statCollection::initialize(const size_t recordCount) {
-    fastest.resize(recordCount);
+    fastest.resize(recordCount, { 0ull, std::vector<factor>(), std::chrono::duration<long double, std::milli>(std::numeric_limits<long double>::max()) });
     slowest.resize(recordCount);
     mostFactors.resize(recordCount);
     timesData.reserve(count);
-    for (factorizedNumInfo& info : fastest) info.calcTime = std::chrono::duration<long double, std::milli>(std::numeric_limits<long double>::max());
     start = std::chrono::steady_clock::now();
 }

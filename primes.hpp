@@ -9,6 +9,6 @@
 std::vector<factor> primeFactorization(unsigned long long n);
 
 //returns whether n is prime or not
-bool isPrime(unsigned long long n);
+inline bool isPrime(unsigned long long n);
 //if n is known to have no factors less than a certain number, that number can be passed in as the potentialFactorFloor
-bool isPrime(unsigned long long n, unsigned long long potentialFactorFloor);
+inline bool isPrime(unsigned long long n, unsigned long long potentialFactorFloor);

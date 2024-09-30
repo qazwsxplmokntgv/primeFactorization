@@ -17,7 +17,7 @@ void findUserRequestedFactorizations(unsigned long long count) {
         //displays time taken to find the factorization
         std::cout << '\n' << infoSet.calcTime.count() << "ms\n\n";
 
-        stats.noteNewTime(infoSet);
+        stats.handleNewTime(std::move(infoSet));
     }
     stats.completeFinalCalculations();
     stats.printout();
@@ -52,7 +52,7 @@ void testRandomNumberFactorizations(unsigned long long count, const bool shouldR
             printFactorization(infoSet.factorization);
             std::cout << '\n' << infoSet.calcTime.count() << "ms\n\n";
         }
-        stats.noteNewTime(infoSet);
+        stats.handleNewTime(std::move(infoSet));
     }
     stats.completeFinalCalculations();
     stats.printout();

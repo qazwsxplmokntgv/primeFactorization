@@ -24,6 +24,7 @@ struct factorizedNumInfo {
 class timeCategories {
 public:
     void increment(const long double timeMs);
+    //output contents of the object to cout
     void print(void) const;
     
 private:
@@ -39,6 +40,6 @@ void printFactorization(const std::vector<factor>& factorization, std::ostream& 
 
 //compares newItem against existingRankings, inserting if applicable
 //comparison should return true for objects that should be higher ranked
-void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, const std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>& comparison);
+void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, const std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison);
 
 unsigned int getFactorCount(const std::vector<factor>& factorization);
