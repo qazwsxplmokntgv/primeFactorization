@@ -23,6 +23,7 @@ void statCollection::printout(void) const {
     printDivider("Fastest Factorizations Attempted", "Slowest Factorizations Attempted");
     printRecordList(fastest, slowest);
 
+    //as above, for factorizations with the most factors
     printDivider("Factorizations With Most Factors", "Mysterious Fourth Thing");
     printRecordList(mostFactors);
 
@@ -32,16 +33,16 @@ void statCollection::printout(void) const {
     printDivider("Calculation Times");
     str << (count ? fastest[0].calcTime.count() : 0) << "ms";
     std::cout << "Q0: " << std::setw(20) << str.str() << "Harmonic Mean:      " << harmonMean.count() << "ms\n";
-    str.str().clear();
+    str.str("");
     str << firstQuart.count() << "ms";
     std::cout << "Q1: " << std::setw(20) << str.str() << "Geometric Mean:     " << geoMean.count() << "ms\n";
-    str.str().clear();
+    str.str("");
     str << median.count() << "ms";
     std::cout << "Q2: " << std::setw(20) << str.str() << "Interquartile Mean: " << iqMean.count() << "ms\n";
-    str.str().clear();
+    str.str("");
     str << thirdQuart.count() << "ms";
     std::cout << "Q3: " << std::setw(20) << str.str() << "Arithmetic Mean:    " << arithMean.count() << "ms\n";
-    str.str().clear();
+    str.str("");
     str << slowest[0].calcTime.count() << "ms";
     std::cout << "Q4: " << std::setw(20) << str.str() << "Standard Deviation: " << stdDev.count() << "ms\n\n";
 
@@ -151,7 +152,7 @@ void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftR
         str << '#' << i + 1 << ": " << leftRecordList[i].calcTime.count() << "ms";
         //adds space between left and right panels
         std::cout << std::left << std::setw(panelWidth) << str.str() << '#' << i + 1 << ": " << rightRecordList[i].calcTime.count() << "ms\n";
-        str.str().clear();
+        str.str("");
 
         //format = "input == factorization\n\n"
         //left side
@@ -161,6 +162,6 @@ void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftR
         std::cout << std::setw(panelWidth) << str.str() << rightRecordList[i].n << " =";
         printFactorization(rightRecordList[i].factorization);
         std::cout << "\n\n";
-        str.str().clear();
+        str.str("");
     }
 }
