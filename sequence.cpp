@@ -33,12 +33,12 @@ void sequence::testRandomNumberFactorizations(unsigned long long count, const bo
     //stores a flexible number of records in a few categories based on the log of the count, with a minimum of 3
     statCollection stats(count, std::max((unsigned int)log10l(count), 3u), maxN);
 
-    for (unsigned long long i = 0; i < count; ++i) {
+    for (unsigned long long i = 1; i <= count; ++i) {
         //generate a number
         factorizedNumInfo infoSet { flatDistr(gen) };
 
         if (shouldReportEachFactorization) //display the number generated
-            std::cout << '(' << i + 1 << '/' << count << ')' << ": " << infoSet.n << std::endl;
+            std::cout << '(' << i << '/' << count << ')' << ": " << infoSet.n << std::endl;
         else if (100 * i / count != 100 * (i - 1) / count) //display progress through count as a % 
             std::cout << "\033[A\33[2K\r" << 100 * i / count << "%\n";
 
@@ -57,4 +57,3 @@ void sequence::testRandomNumberFactorizations(unsigned long long count, const bo
     stats.completeFinalCalculations();
     stats.printout();
 }
-
