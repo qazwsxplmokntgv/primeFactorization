@@ -35,10 +35,9 @@ private:
     timeCategories categories;
 
 
-    std::chrono::steady_clock::time_point start;
-
     //timer from constructor through when complete final calculations is called
     std::chrono::duration<long double> fullSequenceRunDuration;
+    std::chrono::steady_clock::time_point start;
     
     //helper members
     std::vector<std::chrono::duration<long double, std::milli>> timesData;
