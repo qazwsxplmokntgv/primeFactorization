@@ -27,14 +27,14 @@ void timeCategories::increment(const long double timeMs) {
 void timeCategories::print(void) const {
     //prints each counter, in two columns
     std::cout << "\033[1;4;97m---Counts (fastest applicable category only)------------------------------------------------------------------------------------\033[0m\n"
-        << "<   1  μs: " << std::setw(13) << subMicro           << ">=  3  sec: " << threeSecOrMore  << '\n'        
-        << ">=  1  μs: " << std::setw(13) << microOrMore        << ">=  5  sec: " << fiveSecOrMore   << '\n'      
-        << ">=  ¼  ms: " << std::setw(13) << quarterMilliOrMore << ">= 10  sec: " << tenSecOrMore    << '\n'        
-        << ">=  ½  ms: " << std::setw(13) << halfMilliOrMore    << ">= 30  sec: " << thirtySecOrMore << '\n'     
-        << ">=  1  ms: " << std::setw(13) << milliOrMore        << ">=  1  min: " << minOrMore       << '\n'        
-        << ">=  ¼ sec: " << std::setw(13) << quarterSecOrMore   << ">=  5  min: " << fiveMinOrMore   << '\n'      
-        << ">=  ½ sec: " << std::setw(13) << halfSecOrMore      << ">= 10  min: " << tenMinOrMore    << '\n'        
-        << ">=  1 sec: " << std::setw(13) << secOrMore          << ">= 30  min: " << thirtyMinOrMore << "\n\n";      
+        << "<  1  μs: " << std::setw(14) << subMicro           << ">=  3 sec: " << threeSecOrMore  << '\n'        
+        << ">= 1  μs: " << std::setw(14) << microOrMore        << ">=  5 sec: " << fiveSecOrMore   << '\n'      
+        << ">= ¼  ms: " << std::setw(14) << quarterMilliOrMore << ">= 10 sec: " << tenSecOrMore    << '\n'        
+        << ">= ½  ms: " << std::setw(14) << halfMilliOrMore    << ">= 30 sec: " << thirtySecOrMore << '\n'     
+        << ">= 1  ms: " << std::setw(14) << milliOrMore        << ">=  1 min: " << minOrMore       << '\n'        
+        << ">= ¼ sec: " << std::setw(14) << quarterSecOrMore   << ">=  5 min: " << fiveMinOrMore   << '\n'      
+        << ">= ½ sec: " << std::setw(14) << halfSecOrMore      << ">= 10 min: " << tenMinOrMore    << '\n'        
+        << ">= 1 sec: " << std::setw(14) << secOrMore          << ">= 30 min: " << thirtyMinOrMore << "\n\n";      
 }
 
 void printFactorization(const std::vector<factor>& factorization, std::ostream& stream) {
