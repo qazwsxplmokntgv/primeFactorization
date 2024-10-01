@@ -16,7 +16,7 @@ int main(void) {
 
     switch (selection) {
     case 1: //manual entry
-        findUserRequestedFactorizations(count);
+        sequence::findUserRequestedFactorizations(count);
         break;
     case 2: //random surveying
         //gather additional necessary information
@@ -36,7 +36,7 @@ int main(void) {
         }
         std::cout << '\n';
 
-        testRandomNumberFactorizations(count, answer == 'y', maxN);
+        sequence::testRandomNumberFactorizations(count, answer == 'y', maxN);
         break;
     } 
     return 0;

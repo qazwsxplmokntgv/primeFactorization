@@ -1,6 +1,6 @@
 #include "primes.hpp"
 
-std::vector<factor> primeFactorization(unsigned long long n) {
+std::vector<factor> primes::primeFactorization(unsigned long long n) {
     std::vector<factor> basePowers;
     basePowers.reserve(4); //enough for a solid portion of factorizations 
 
@@ -25,7 +25,8 @@ std::vector<factor> primeFactorization(unsigned long long n) {
         if (exp) { //only rechecks if n has changed since last check 
             //skips redundant checking for factors of n less than divisor (already checked in second inner while loop)
             if (isPrime(n, divisor)) { 
-                //if n is prime, n^k where k > 1 cannot be a factor
+                //no n^k where k > 1 || k == 0 is prime
+                //therefore k == 1
                 basePowers.emplace_back(n, 1);
                 //n must be the largest prime factor at this point, therefore the loop may now be exited
                 break;
@@ -33,6 +34,7 @@ std::vector<factor> primeFactorization(unsigned long long n) {
             exp = 0;
         }
         //skip non primes before checking for factor status
+        //divisor is always incremented at least once
         while (!isPrime(divisor += 2u));
         //determine the greatest power of divisor by which n is divisible by, if any
         while (n % divisor == 0) {
@@ -45,11 +47,11 @@ std::vector<factor> primeFactorization(unsigned long long n) {
     return basePowers;
 }
 
-inline bool isPrime(unsigned long long n) {
+inline bool primes::isPrime(const unsigned long long n) {
     return isPrime(n, 5);
 }
 
-inline bool isPrime(unsigned long long n, unsigned long long potentialFactorFloor) {
+inline bool primes::isPrime(const unsigned long long n, const unsigned long long potentialFactorFloor) {
     //this switch is slightly faster than any obvious bitwise approaches tested so far, which all need to first check (n < 4)
     switch (n) {
         [[unlikely]] case 0u: 
@@ -62,10 +64,11 @@ inline bool isPrime(unsigned long long n, unsigned long long potentialFactorFloo
     if (n % 2u == 0 || n % 3u == 0) return false;
 
     //greatest integer <= the sqrt of n
+    //sqrt has sufficient precision, sqrtl not necessary
     const unsigned long maxLessorDivisor = sqrt(n);
 
     //iterates through all odd numbers from at least 5 through the greatest odd int <= n's sqrt inclusive
-    for (unsigned long long i = potentialFactorFloor > 5u ? potentialFactorFloor : 5; i <= maxLessorDivisor; i += 2u) {
+    for (unsigned long long i = std::max(potentialFactorFloor, 5ull); i <= maxLessorDivisor; i += 2u) {
         //skip multiples of 3 (very common case); severely diminishing returns for numbers beyond this
         //additionally checking for 5 heuristically appears to slow runtime on average by about 1.5x, slightly worse than case with no such skips at all (~1.4x)
         if (i % 3 == 0) i += 2u;
