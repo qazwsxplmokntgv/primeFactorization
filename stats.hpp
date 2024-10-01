@@ -21,6 +21,8 @@ public:
 
 private:
     void initialize(const size_t recordCount);
+    void printRecordList(const std::vector<factorizedNumInfo>& recordList) const;
+    void printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList) const;
 
     //rank lists
     std::vector<factorizedNumInfo> fastest;
@@ -34,14 +36,15 @@ private:
     //counts of divisions of calcTimes
     timeCategories categories;
 
-
     //timer from constructor through when complete final calculations is called
     std::chrono::duration<long double> fullSequenceRunDuration;
     std::chrono::steady_clock::time_point start;
     
-    //helper members
+    const unsigned long long count;
+    const size_t recordSize;
+    const unsigned long long maxN;
+
     std::vector<std::chrono::duration<long double, std::milli>> timesData;
-    const unsigned long long count, maxN;
     std::chrono::duration<long double, std::milli>runningSum = std::chrono::duration<long, std::milli>(0);
 };
 

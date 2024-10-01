@@ -7,6 +7,8 @@
 #include <iostream>
 #include <vector>
 
+constexpr size_t panelWidth = 64;
+
 //base exponent pair
 struct factor {
     factor(unsigned long long base_, uint_fast8_t exp_) : base(base_), exp(exp_) {}
@@ -35,6 +37,8 @@ private:
         minOrMore = 0, fiveMinOrMore = 0, tenMinOrMore = 0, thirtyMinOrMore = 0;
 };
 
+void printDivider(const std::string&& leftHeader = "", const std::string&& rightHeader = "");
+ 
 //takes a prime factorization as returned by primeFactorization() and prints it to stream
 void printFactorization(const std::vector<factor>& factorization, std::ostream& stream = std::cout); 
 

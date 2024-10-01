@@ -26,7 +26,8 @@ void timeCategories::increment(const long double timeMs) {
 
 void timeCategories::print(void) const {
     //prints each counter, in two columns
-    std::cout << "\033[1;4;97m---Counts (fastest applicable category only)------------------------------------------------------------------------------------\033[0m\n"
+    printDivider("Counts (fastest applicable category only)");
+    std::cout
         << "<  1  μs: " << std::setw(14) << subMicro           << ">=  3 sec: " << threeSecOrMore  << '\n'        
         << ">= 1  μs: " << std::setw(14) << microOrMore        << ">=  5 sec: " << fiveSecOrMore   << '\n'      
         << ">= ¼  ms: " << std::setw(14) << quarterMilliOrMore << ">= 10 sec: " << tenSecOrMore    << '\n'        
@@ -37,6 +38,14 @@ void timeCategories::print(void) const {
         << ">= 1 sec: " << std::setw(14) << secOrMore          << ">= 30 min: " << thirtyMinOrMore << "\n\n";      
 }
 
+void printDivider(const std::string&& leftHeader, const std::string&& rightHeader) {
+    static constexpr size_t indent = 3;
+    std::string header("\033[1;4;97;53m" + std::string(panelWidth * 2, '-') + "\033[0m\n");
+    header.replace(header.find('-') + indent, leftHeader.size(), leftHeader, 0);
+    header.replace(header.find('-') + indent + panelWidth, rightHeader.size(), rightHeader, 0);
+    std::cout << header;
+}
+
 void printFactorization(const std::vector<factor>& factorization, std::ostream& stream) {
     if (factorization.empty()) [[unlikely]] {
         stream << " DNE";
@@ -45,7 +54,7 @@ void printFactorization(const std::vector<factor>& factorization, std::ostream& 
         stream << '=';
         for (const auto& factor : factorization) {
             stream << ' ' << factor.base;
-            if (factor.exp > 1) stream << '^' << (int)factor.exp;
+            if (factor.exp > 1) stream << '^' << (u_short)factor.exp;
         }
     }
 }

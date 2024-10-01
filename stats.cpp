@@ -1,71 +1,47 @@
 #include "stats.hpp"
 
-statCollection::statCollection(const unsigned long long inputCount, const size_t recordCount, const unsigned long long maxInput) : count(inputCount), maxN(maxInput) {
+statCollection::statCollection(const unsigned long long inputCount, const size_t recordCount, const unsigned long long maxInput) 
+    : count(inputCount), recordSize(recordCount), maxN(maxInput) {
     initialize(recordCount);
 }
 
-statCollection::statCollection(const unsigned long long inputCount, const size_t recordCount) : count(inputCount), maxN(0)  {
+statCollection::statCollection(const unsigned long long inputCount, const size_t recordCount) 
+    : count(inputCount), recordSize(recordCount), maxN(0) {
     initialize(recordCount);
 }
 
 void statCollection::printout(void) const {
-    constexpr int rightPanelOffset = 64;
-
     //stat printout header
-    std::cout << "\033[1;4;97m--------------------------------------------------------------------------------------------------------------------------------\033[0m\n";
+    printDivider();
     std::cout << count << " factorizations";
     //0 maxN is used to indicate manual entry - the upper rng bound is accordingly omitted
-    if (maxN) std:: cout << " of numbers <= " << maxN; 
+    if (maxN) std::cout << " of numbers <= " << maxN; 
     std::cout << " calculated in " << fullSequenceRunDuration.count() << " seconds.\n\n";
+
+    //info blocks on the fastest and slowest calculation times for factorizations
+    //shows calc time, the input, and the factorization itself
+    printDivider("Fastest Factorizations Attempted", "Slowest Factorizations Attempted");
+    printRecordList(fastest, slowest);
+
+    printDivider("Factorizations With Most Factors", "Mysterious Fourth Thing");
+    printRecordList(mostFactors);
 
     //string stream used to format info blocks horizontally (to better fit in one screen)
     std::stringstream str; 
-    //info blocks on the fastest and slowest calculation times for factorizations
-    //shows calc time, the input, and the factorization itself
-    std::cout << "\033[1;4;97m---Fastest Factorizations Attempted-----------------------------\033[0m";
-    std::cout << "\033[1;4;97m---Slowest Factorizations Attempted-----------------------------\033[0m\n" << std::left;
-    for (size_t i = 0; i < fastest.size() && fastest[i].calcTime < std::chrono::duration<long double, std::milli>(std::numeric_limits<long double>::max()); ++i) {
-        //format is "ranking: calculation time\n"
-        str << '#' << i + 1 << ": " << fastest[i].calcTime.count() << "ms";
-        //adds space between left and right panels
-        std::cout << std::setw(rightPanelOffset) << str.str() << '#' << i + 1 << ": " << slowest[i].calcTime.count() << "ms\n";
-        str.str("");
-
-        //foramt = "input == factorization\n\n"
-        //left side
-        str << fastest[i].n << " =";
-        printFactorization(fastest[i].factorization, str);
-        //right side
-        std::cout << std::setw(rightPanelOffset) << str.str() << slowest[i].n << " =";
-        printFactorization(slowest[i].factorization);
-        std::cout << "\n\n";
-        str.str("");
-    }
-
-    std::cout << "\033[1;4;97m---Factorizations With Most Factors-----------------------------\033[0m";
-    std::cout << "\033[1;4;97m---Mysterious Fourth Thing--------------------------------------\033[0m\n";
-    for (size_t i = 0; i < mostFactors.size() && mostFactors[i].n; ++i) {
-        std::cout << '#' << i + 1 << ": " << getFactorCount(mostFactors[i].factorization) << " | " << mostFactors[i].calcTime.count() << "ms\n";
-
-        std::cout << mostFactors[i].n << " =";
-        printFactorization(mostFactors[i].factorization);
-        std::cout << "\n\n";
-    }
-
     //various statistical facts regarding calculation times 
-    std::cout << "\033[1;4;97m---Calculation Times------------------------------------------------------------------------------------------------------------\033[0m\n";
+    printDivider("Calculation Times");
     str << (count ? fastest[0].calcTime.count() : 0) << "ms";
     std::cout << "Q0: " << std::setw(20) << str.str() << "Harmonic Mean:      " << harmonMean.count() << "ms\n";
-    str.str("");
+    str.str().clear();
     str << firstQuart.count() << "ms";
     std::cout << "Q1: " << std::setw(20) << str.str() << "Geometric Mean:     " << geoMean.count() << "ms\n";
-    str.str("");
+    str.str().clear();
     str << median.count() << "ms";
     std::cout << "Q2: " << std::setw(20) << str.str() << "Interquartile Mean: " << iqMean.count() << "ms\n";
-    str.str("");
+    str.str().clear();
     str << thirdQuart.count() << "ms";
     std::cout << "Q3: " << std::setw(20) << str.str() << "Arithmetic Mean:    " << arithMean.count() << "ms\n";
-    str.str("");
+    str.str().clear();
     str << slowest[0].calcTime.count() << "ms";
     std::cout << "Q4: " << std::setw(20) << str.str() << "Standard Deviation: " << stdDev.count() << "ms\n\n";
 
@@ -156,4 +132,35 @@ void statCollection::initialize(const size_t recordCount) {
     mostFactors.resize(recordCount);
     timesData.reserve(count);
     start = std::chrono::steady_clock::now();
+}
+
+void statCollection::printRecordList(const std::vector<factorizedNumInfo>& recordList) const {
+    for (size_t i = 0; i < recordList.size() && recordList[i].n; ++i) {
+        std::cout << '#' << i + 1 << ": " << getFactorCount(recordList[i].factorization) << " | " << recordList[i].calcTime.count() << "ms\n";
+
+        std::cout << recordList[i].n << " =";
+        printFactorization(recordList[i].factorization);
+        std::cout << "\n\n";
+    }
+}
+
+void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList) const {
+    std::stringstream str; 
+    for (size_t i = 0; i < std::min((unsigned long long)recordSize, count); ++i) {
+        //format is "ranking: calculation time\n"
+        str << '#' << i + 1 << ": " << leftRecordList[i].calcTime.count() << "ms";
+        //adds space between left and right panels
+        std::cout << std::left << std::setw(panelWidth) << str.str() << '#' << i + 1 << ": " << rightRecordList[i].calcTime.count() << "ms\n";
+        str.str().clear();
+
+        //format = "input == factorization\n\n"
+        //left side
+        str << leftRecordList[i].n << " =";
+        printFactorization(leftRecordList[i].factorization, str);
+        //right side
+        std::cout << std::setw(panelWidth) << str.str() << rightRecordList[i].n << " =";
+        printFactorization(rightRecordList[i].factorization);
+        std::cout << "\n\n";
+        str.str().clear();
+    }
 }
