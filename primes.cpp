@@ -2,7 +2,7 @@
 
 std::vector<factor> primes::primeFactorization(unsigned long long n) {
     std::vector<factor> basePowers;
-    basePowers.reserve(4); //enough for a solid portion of factorizations 
+    basePowers.reserve(8); //plenty for most factorizations 
 
     //special case for multiples of nontrivial powers of 2
     //allows evens to be cleanly skipped in the rest of the function
@@ -12,11 +12,11 @@ std::vector<factor> primes::primeFactorization(unsigned long long n) {
         if (twosCount) basePowers.emplace_back(2u, twosCount);
     }
 
-    //value which sweeps across all odd primes until reaching the value of each of n's prime factors,
-    //possibly excluding the greatest prime factor if the square of said factor does not divide n
+    //sweeps across all odd primes until reaching the value of each of n's prime factors,
+    //possibly excluding the greatest prime factor as long as the square of said factor does not divide n
     unsigned long long divisor = 1;
     //counts powers of discovered prime factors
-    //doubles as an indicator of n's value being lowered since last time n's primeness was checked, which results from said powers being factored out
+    //doubles as an flag of n's value being lowered since previous isPrime(n...) check, which results from said powers being factored out
     //initially 1 to catch when original input is already prime
     uint_fast8_t exp = 1;
 
@@ -25,13 +25,12 @@ std::vector<factor> primes::primeFactorization(unsigned long long n) {
         if (exp) { //only rechecks if n has changed since last check 
             //skips redundant checking for factors of n less than divisor (already checked in second inner while loop)
             if (isPrime(n, divisor)) { 
-                //no n^k where k > 1 || k == 0 is prime
-                //therefore k == 1
+                //no n^k where k != 1 is prime, therefore k == 1
                 basePowers.emplace_back(n, 1);
                 //n must be the largest prime factor at this point, therefore the loop may now be exited
                 break;
-            } //resets exp following its use as a flag for unchecked modified n values
-            exp = 0;
+            } 
+            exp = 0; //resets exp following its use as a flag for unchecked modified n values
         }
         //skip non primes before checking for factor status
         //divisor is always incremented at least once
