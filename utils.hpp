@@ -35,7 +35,7 @@ public:
 private:
     struct subdivision
     {
-        std::wstring displayText;
+        std::string displayText;
         long double floorMilliEquivalent;
         int count;
     };
@@ -43,23 +43,23 @@ private:
     constexpr static int subdivisionCount = 16;
 
     std::array<subdivision, subdivisionCount> subdivisions { subdivision
-        { L"<  1  μs: ",  0       , 0 },
-        { L">= 1  μs: ",  .0001   , 0 },
-        { L">= ¼  ms: ",  .25     , 0 },
-        { L">= ½  ms: ",  .5      , 0 },
-        { L">= 1  ms: ",  1       , 0 },
-        { L">= ¼ sec: ",  250     , 0 },
-        { L">= ½ sec: ",  500     , 0 },
-        { L">= 1 sec: ",  1000    , 0 },
+        { "<   1   us: ", 0       , 0 },
+        { ">=  1   us: ", .0001   , 0 },
+        { ">= .25  ms: ", .25     , 0 },
+        { ">= .5   ms: ", .5      , 0 },
+        { ">=  1   ms: ", 1       , 0 },
+        { ">= .25 sec: ", 250     , 0 },
+        { ">= .5  sec: ", 500     , 0 },
+        { ">=  1  sec: ", 1000    , 0 },
 
-        { L">=  3 sec: ", 3000    , 0 },
-        { L">=  5 sec: ", 5000    , 0 },
-        { L">= 10 sec: ", 10000   , 0 },
-        { L">= 30 sec: ", 30000   , 0 },
-        { L">=  1 min: ", 60000   , 0 },
-        { L">=  5 min: ", 3000000 , 0 },
-        { L">= 10 min: ", 6000000 , 0 },
-        { L">= 30 min: ", 18000000, 0 } 
+        { ">=  3 sec: ",  3000    , 0 },
+        { ">=  5 sec: ",  5000    , 0 },
+        { ">= 10 sec: ",  10000   , 0 },
+        { ">= 30 sec: ",  30000   , 0 },
+        { ">=  1 min: ",  60000   , 0 },
+        { ">=  5 min: ",  3000000 , 0 },
+        { ">= 10 min: ",  6000000 , 0 },
+        { ">= 30 min: ",  18000000, 0 } 
     };
 };
 

@@ -14,9 +14,9 @@ void timeCategories::printout(void) const {
     printDivider("Counts (fastest applicable category only)");
     //prints each counter, in two columns
     for (size_t i = 0; i < subdivisionCount / 2; ++i) 
-        std::wcout << std::format(L"{:{}}{}\n", 
-            std::format(L"{}{}", subdivisions[i].displayText, subdivisions[i].count), miniPanelWidth, 
-            std::format(L"{}{}", subdivisions[i + (subdivisionCount / 2)].displayText, subdivisions[i + (subdivisionCount / 2)].count));
+        std::cout << std::format("{:{}}{}\n", 
+            std::format("{}{}", subdivisions[i].displayText, subdivisions[i].count), miniPanelWidth, 
+            std::format("{}{}", subdivisions[i + (subdivisionCount / 2)].displayText, subdivisions[i + (subdivisionCount / 2)].count));
 }
 
 void printDivider(const std::string&& leftHeader, const std::string&& rightHeader) {
