@@ -13,7 +13,7 @@ statCollection::statCollection(const unsigned long long inputCount, const size_t
 void statCollection::printout(void) const {
     //stat printout header
     printDivider();
-    std::cout << std::format("{} factorizations{} calculated in {}.\n\n", count, maxN ? std::format("of numbers <= {}", maxN) : "", fullSequenceRunDuration);
+    std::cout << std::format("{} factorizations{} calculated in {}.\n\n", count, maxN ? std::format(" of numbers <= {}", maxN) : "", fullSequenceRunDuration);
 
     //info blocks on the fastest and slowest calculation times for factorizations
     //shows calc time, the input, and the factorization itself
@@ -22,11 +22,11 @@ void statCollection::printout(void) const {
 
     //as above, for factorizations with the most factors
     printDivider("Factorizations With Most Factors", "Mysterious Fourth Thing");
-    for (size_t i = 0; i < mostFactors.size() && mostFactors[i].n; ++i) 
-        //printRecordList does not yet support specializations like this one
-        std::cout << std::format("#{}: {} | {}\n{} ={}\n\n", 
-            i + 1, getFactorCount(mostFactors[i].factorization), mostFactors[i].calcTime, mostFactors[i].n, toString(mostFactors[i].factorization));
+    
 
+    printRecordList(mostFactors, {}, 
+        [](size_t i, std::vector<factorizedNumInfo> leftList){ return std::format("#{}: {} | {}", i + 1, leftList[i].factorization.getFactorCount(), leftList[i].calcTime); },
+        [](size_t i, std::vector<factorizedNumInfo> rightList){ return ""; });
 
     //string stream used to format info blocks horizontally (to better fit in one screen)
     //various statistical facts regarding calculation times 
@@ -57,7 +57,7 @@ void statCollection::handleNewTime(factorizedNumInfo&& newFactorization) {
     //checks if the new time is elligible to join any of the rankings being tracked
     rankIfApplicable(newFactorization, fastest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem){ return newItem.calcTime.count() < existingItem.calcTime.count(); });
     rankIfApplicable(newFactorization, slowest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem){ return newItem.calcTime.count() > existingItem.calcTime.count(); });
-    rankIfApplicable(newFactorization, mostFactors, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem){ return getFactorCount(newItem.factorization) > getFactorCount(existingItem.factorization); });
+    rankIfApplicable(newFactorization, mostFactors, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem){ return newItem.factorization.getFactorCount() > existingItem.factorization.getFactorCount(); });
 
     //totals a running sum of times for later use in calculating and average (used in turn for calculating deviations, variance, std deviation)
     runningSum += newFactorization.calcTime;
@@ -130,7 +130,7 @@ void statCollection::completeFinalCalculations(void) {
 }
 
 void statCollection::initialize(const size_t recordCount) {
-    fastest.resize(recordCount, { 0ull, std::vector<factor>(), std::chrono::duration<long double, std::milli>(std::numeric_limits<long double>::max()) });
+    fastest.resize(recordCount, { 0ull, {}, std::chrono::duration<long double, std::milli>(std::numeric_limits<long double>::max()) });
     slowest.resize(recordCount);
     mostFactors.resize(recordCount);
     timesData.reserve(count);
@@ -138,13 +138,22 @@ void statCollection::initialize(const size_t recordCount) {
 }
 
 void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList) const {
+    printRecordList(leftRecordList, rightRecordList, 
+        //default format shows rank and calcTime only
+        [](size_t i, std::vector<factorizedNumInfo> leftList){ return std::format("#{}: {}", i + 1, leftList[i].calcTime); },
+        [](size_t i, std::vector<factorizedNumInfo> rightList){ return std::format("#{}: {}", i + 1, rightList[i].calcTime); });
+}
+
+//TODO add support for true empty right panels
+void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList, std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)> leftInfoFormat, std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)> rightInfoFormat) const {
     for (size_t i = 0; i < std::min((unsigned long long)recordSize, count); ++i) {
         std::cout << std::format("{:{}}{}\n{:{}}{}\n\n", 
-            //ranks and times
-            std::format("#{}: {}", i + 1, leftRecordList[i].calcTime), panelWidth,
-            std::format("#{}: {}", i + 1, rightRecordList[i].calcTime),
-            //factorizations
-            std::format("{} ={}", leftRecordList[i].n, toString(leftRecordList[i].factorization)), panelWidth,
-            std::format("{} ={}", rightRecordList[i].n, toString(rightRecordList[i].factorization)));
+            //info
+            leftInfoFormat(i, leftRecordList), panelWidth,
+            rightInfoFormat(i, rightRecordList),
+            //factorizations themselves
+            std::format("{} ={}", leftRecordList[i].n, leftRecordList[i].factorization.asString()), panelWidth,
+            (rightRecordList.size() > i) ? 
+            std::format("{} ={}", rightRecordList[i].n, rightRecordList[i].factorization.asString()) : "");
     }
 }

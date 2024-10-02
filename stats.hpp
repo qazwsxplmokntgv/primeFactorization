@@ -21,8 +21,11 @@ public:
 
 private:
     void initialize(const size_t recordCount);
-    //TODO parameterize format
+
     void printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList) const;
+    void printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList, 
+        std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)> leftInfoFormat, 
+        std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)> rightInfoFormat) const;
 
     //rank lists
     std::vector<factorizedNumInfo> fastest;
