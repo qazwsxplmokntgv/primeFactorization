@@ -1,15 +1,19 @@
 #pragma once
 
 #include <array>
+#include <array>
 #include <chrono>
 #include <cstdint>
 #include <functional>
+#include <format>
+#include <string>
 #include <format>
 #include <string>
 #include <iostream>
 #include <vector>
 
 constexpr size_t panelWidth = 64;
+constexpr size_t miniPanelWidth = 26;
 constexpr size_t miniPanelWidth = 26;
 
 //base exponent pair
@@ -30,7 +34,7 @@ class timeCategories {
 public:
     void increment(const long double timeMs);
     //output contents of the object to cout
-    void printout(void) const;
+    void printoutout(void) const;
     
 private:
     struct subdivision
