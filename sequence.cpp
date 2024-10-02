@@ -14,7 +14,7 @@ void sequence::findUserRequestedFactorizations(unsigned long long count) {
         infoSet.calcTime = std::chrono::duration<long double, std::milli>(std::chrono::steady_clock::now() - start);
 
         //displays factorization and respective calculation time
-        std::cout << std::format("{}\n{}\n\n", toString(infoSet.factorization), infoSet.calcTime);
+        std::cout << std::format("{}\n{}\n\n", infoSet.factorization.asString(), infoSet.calcTime);
 
         //passes info along to calculate stats shown on program conclusion
         stats.handleNewTime(std::move(infoSet));
@@ -49,7 +49,7 @@ void sequence::testRandomNumberFactorizations(unsigned long long count, const bo
 
         //prints out the individual factorization and respective calculation time
         if (shouldReportEachFactorization) 
-            std::cout << std::format("{}\n{}\n\n", toString(infoSet.factorization), infoSet.calcTime);
+            std::cout << std::format("{}\n{}\n\n", infoSet.factorization.asString(), infoSet.calcTime);
 
         stats.handleNewTime(std::move(infoSet));
     }

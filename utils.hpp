@@ -1,31 +1,23 @@
 #pragma once
 
 #include <array>
-#include <array>
 #include <chrono>
-#include <cstdint>
 #include <functional>
-#include <format>
-#include <string>
 #include <format>
 #include <string>
 #include <iostream>
 #include <vector>
+#include "factorization.hpp"
 
 constexpr size_t panelWidth = 64;
-constexpr size_t miniPanelWidth = 26;
+constexpr size_t miniPanelWidth = 32;
 
-//base exponent pair
-struct factor {
-    factor(unsigned long long base_, uint_fast8_t exp_) : base(base_), exp(exp_) {}
-    unsigned long long base;
-    uint_fast8_t exp;
-};
+
 
 //used to store information on noteworthy factorizations for use in concluding statistical printouts
 struct factorizedNumInfo {
     unsigned long long n;
-    std::vector<factor> factorization;
+    Factorization factorization;
     std::chrono::duration<long double, std::milli> calcTime;
 };
 
@@ -67,12 +59,8 @@ private:
 };
 
 void printDivider(const std::string&& leftHeader = "", const std::string&& rightHeader = "");
- 
-//takes a prime factorization as returned by primeFactorization() and converts it to a string
-std::string toString(const std::vector<factor>& factorization); 
+
 
 //compares newItem against existingRankings, inserting if applicable
 //comparison should return true for objects that should be higher ranked
 void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, const std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison);
-
-unsigned int getFactorCount(const std::vector<factor>& factorization);

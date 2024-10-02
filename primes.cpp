@@ -1,15 +1,14 @@
 #include "primes.hpp"
 
-std::vector<factor> primes::primeFactorization(unsigned long long n) {
-    std::vector<factor> basePowers;
-    basePowers.reserve(8); //plenty for most factorizations 
+Factorization primes::primeFactorization(unsigned long long n) {
+    Factorization basePowers;
 
     //special case for multiples of nontrivial powers of 2
     //allows evens to be cleanly skipped in the rest of the function
     if (n > 1u) {
         uint_fast8_t twosCount = 0;
         for (; !(n & 0b1); ++twosCount) n >>= 1;
-        if (twosCount) basePowers.emplace_back(2u, twosCount);
+        if (twosCount) basePowers.addNewFactor(2u, twosCount);
     }
 
     //sweeps across all odd primes until reaching the value of each of n's prime factors,
@@ -26,7 +25,7 @@ std::vector<factor> primes::primeFactorization(unsigned long long n) {
             //skips redundant checking for factors of n less than divisor (already checked in second inner while loop)
             if (isPrime(n, divisor)) { 
                 //no n^k where k != 1 is prime, therefore k == 1
-                basePowers.emplace_back(n, 1);
+                basePowers.addNewFactor(n, 1);
                 //n must be the largest prime factor at this point, therefore the loop may now be exited
                 break;
             } 
@@ -41,7 +40,7 @@ std::vector<factor> primes::primeFactorization(unsigned long long n) {
             ++exp;
         }
         //if a non 0 power of i is a factor of n, add this to the output and move on
-        if (exp) basePowers.emplace_back(divisor, exp);
+        if (exp) basePowers.addNewFactor(divisor, exp);
     }
     return basePowers;
 }

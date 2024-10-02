@@ -1,13 +1,11 @@
 #pragma once
 
 #include <cmath>
-#include <cstdint>
-#include <vector>
-#include "utils.hpp"
+#include "factorization.hpp"
 
 namespace primes {
     //returns a map of prime factors of n and their respective powers in the form key == base, val == power
-    std::vector<factor> primeFactorization(unsigned long long n);
+    Factorization primeFactorization(unsigned long long n);
 
     //returns whether n is prime or not
     inline bool isPrime(const unsigned long long n);

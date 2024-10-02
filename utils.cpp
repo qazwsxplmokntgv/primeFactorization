@@ -24,18 +24,6 @@ void printDivider(const std::string&& leftHeader, const std::string&& rightHeade
     std::cout << std::format("\033[1;4;97;53m{:-<{}}{:-<{}}{:-<{}}\033[0m\n", "", indent, leftHeader, panelWidth, rightHeader, panelWidth - indent);
 }
 
-std::string toString(const std::vector<factor>& factorization) {
-    if (factorization.empty()) [[unlikely]]
-        return " DNE";
-    else {
-        std::string out("="); // intentionally == in practice
-        for (const auto& factor : factorization) {
-            out += std::format(" {}", factor.base);
-            if (factor.exp > 1) out += std::format("^{}", (unsigned short)factor.exp);
-        }
-        return out;
-    }
-}
 
 void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, const std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison) {
     //for each stored value, 
@@ -51,10 +39,4 @@ void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNu
             break;
         }
     }
-}
-
-unsigned int getFactorCount(const std::vector<factor>& factorization) {
-    unsigned int count = 0;
-    for (const factor& fac : factorization) count += fac.exp;
-    return count;
 }

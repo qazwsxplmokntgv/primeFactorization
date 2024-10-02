@@ -7,6 +7,7 @@
 
 #include "stats.hpp"
 #include "primes.hpp"
+#include "factorization.hpp"
 
 namespace sequence {
     //allows the user to input count numbers of their choice in the range of long max, and prints 
