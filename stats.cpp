@@ -13,7 +13,7 @@ statCollection::statCollection(const unsigned long long inputCount, const size_t
 void statCollection::printout(void) const {
     //stat printout header
     printDivider();
-    std::cout << std::format("{} factorizations{} calculated in {}.\n", count, maxN ? std::format("of numbers <= {}", maxN) : "", fullSequenceRunDuration);
+    std::cout << std::format("{} factorizations{} calculated in {}.\n\n", count, maxN ? std::format("of numbers <= {}", maxN) : "", fullSequenceRunDuration);
 
     //info blocks on the fastest and slowest calculation times for factorizations
     //shows calc time, the input, and the factorization itself
@@ -24,29 +24,30 @@ void statCollection::printout(void) const {
     printDivider("Factorizations With Most Factors", "Mysterious Fourth Thing");
     for (size_t i = 0; i < mostFactors.size() && mostFactors[i].n; ++i) 
         //printRecordList does not yet support specializations like this one
-        std::cout << std::format("#{}: {} | {}\n ={}\n\n", 
-            i + 1, getFactorCount(mostFactors[i].factorization), mostFactors[i].calcTime, toString(mostFactors[i].factorization));
+        std::cout << std::format("#{}: {} | {}\n{} ={}\n\n", 
+            i + 1, getFactorCount(mostFactors[i].factorization), mostFactors[i].calcTime, mostFactors[i].n, toString(mostFactors[i].factorization));
 
 
     //string stream used to format info blocks horizontally (to better fit in one screen)
     //various statistical facts regarding calculation times 
     printDivider("Calculation Times");
-    std::cout << std::format("{:{}}{}\n", 
-        std::format("{}{}", "Q0: ", count ? fastest[0].calcTime : std::chrono::duration<long double, std::milli>(0)), miniPanelWidth, 
-        std::format("{}{}", "Harmonic Mean:      ", harmonMean));
-    std::cout << std::format("{:{}}{}\n", 
-        std::format("{}{}", "Q1: ", firstQuart), miniPanelWidth, 
-        std::format("{}{}", "Geometric Mean:     ", geoMean));
-    std::cout << std::format("{:{}}{}\n", 
-        std::format("{}{}", "Q2: ", median), miniPanelWidth, 
-        std::format("{}{}", "Interquartile Mean: ", iqMean));
-    std::cout << std::format("{:{}}{}\n", 
-        std::format("{}{}", "Q3: ", thirdQuart), miniPanelWidth, 
-        std::format("{}{}", "Arithmetic Mean:    ", arithMean));
-    std::cout << std::format("{:{}}{}\n", 
-        std::format("{}{}", "Q4: ", slowest[0].calcTime), miniPanelWidth, 
-        std::format("{}{}", "Standard Deviation: ", stdDev));
-
+    std::cout << std::format("{}{}{}{}{}\n", 
+        std::format("{:{}}{}\n", 
+            std::format("{}{}", "Q0: ", count ? fastest[0].calcTime : std::chrono::duration<long double, std::milli>(0)), miniPanelWidth, 
+            std::format("{}{}", "Harmonic Mean:      ", harmonMean)),
+        std::format("{:{}}{}\n", 
+            std::format("{}{}", "Q1: ", firstQuart), miniPanelWidth, 
+            std::format("{}{}", "Geometric Mean:     ", geoMean)),
+        std::format("{:{}}{}\n", 
+            std::format("{}{}", "Q2: ", median), miniPanelWidth, 
+            std::format("{}{}", "Interquartile Mean: ", iqMean)),
+        std::format("{:{}}{}\n", 
+            std::format("{}{}", "Q3: ", thirdQuart), miniPanelWidth, 
+            std::format("{}{}", "Arithmetic Mean:    ", arithMean)),
+        std::format("{:{}}{}\n", 
+            std::format("{}{}", "Q4: ", slowest[0].calcTime), miniPanelWidth, 
+            std::format("{}{}", "Standard Deviation: ", stdDev))
+    );
     //prints an overview of the calculation time distribution
     categories.printout();
 }
@@ -143,7 +144,7 @@ void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftR
             std::format("#{}: {}", i + 1, leftRecordList[i].calcTime), panelWidth,
             std::format("#{}: {}", i + 1, rightRecordList[i].calcTime),
             //factorizations
-            std::format(" ={}", toString(leftRecordList[i].factorization)), panelWidth,
-            std::format(" ={}", toString(rightRecordList[i].factorization)));
+            std::format("{} ={}", leftRecordList[i].n, toString(leftRecordList[i].factorization)), panelWidth,
+            std::format("{} ={}", rightRecordList[i].n, toString(rightRecordList[i].factorization)));
     }
 }
