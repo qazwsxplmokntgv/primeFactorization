@@ -20,20 +20,20 @@ int main(void) {
         break;
     case 2: //random surveying
         //gather additional necessary information
-        std::cout << "Upper Bound (0 for max): ";
         unsigned long long maxN;
+        std::cout << "Upper Bound (0 for max): ";
         while (!(std::cin >> maxN)) {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
         if (maxN == 0) maxN = std::numeric_limits<unsigned long long>::max();
 
+        char answer;
         std::cout << "Show individual results? (Y/n) ";
-        char answer = '\0';
-        while (answer != 'y' && answer != 'n') {
+        do {
             std::cin >> answer;
             answer = tolower(answer);
-        }
+        } while (answer != 'y' && answer != 'n');
         std::cout << '\n';
 
         sequence::testRandomNumberFactorizations(count, answer == 'y', maxN);
