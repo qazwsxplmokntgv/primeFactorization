@@ -2,60 +2,41 @@
 
 void timeCategories::increment(const long double timeMs) {
     //increments the appropriate counter for the calculation time category
-    //reverse this order with different conditions is likely better in performance due to nature of data
-    //however this is much more readable 
-    //TODO find compromise on that
-    if (timeMs >= 18000000) ++thirtyMinOrMore;
-    else if (timeMs >= 6000000) ++tenMinOrMore;
-    else if (timeMs >= 3000000) ++fiveMinOrMore;
-    else if (timeMs >= 60000) ++minOrMore;
-    else if (timeMs >= 30000) ++thirtySecOrMore;
-    else if (timeMs >= 10000) ++tenSecOrMore;
-    else if (timeMs >= 5000) ++fiveSecOrMore;
-    else if (timeMs >= 3000) ++threeSecOrMore;
-    else if (timeMs >= 1000) ++secOrMore;
-    else if (timeMs >= 500) ++halfSecOrMore;
-    else if (timeMs >= 250) ++quarterSecOrMore;
-    else if (timeMs >= 1) ++milliOrMore;
-    else if (timeMs >= .5) ++halfMilliOrMore;
-    else if (timeMs >= .25) ++quarterMilliOrMore;
-    else if (timeMs >= .0001) ++microOrMore;
-    else ++subMicro;
-
+    for (auto i = subdivisions.rbegin(); i != subdivisions.rend(); ++i) {
+        if (timeMs >= i->floorMilliEquivalent) { 
+            ++i->count;
+            break;
+        }
+    }
 }
 
-void timeCategories::print(void) const {
-    //prints each counter, in two columns
+//note: what the fuck?? why is it doing that (see output)
+//genuinely how is that happening
+//update its because of the special characters fuck me
+void timeCategories::printout(void) const {
     printDivider("Counts (fastest applicable category only)");
-    std::cout
-        << "<  1  μs: " << std::setw(14) << subMicro           << ">=  3 sec: " << threeSecOrMore  << '\n'        
-        << ">= 1  μs: " << std::setw(14) << microOrMore        << ">=  5 sec: " << fiveSecOrMore   << '\n'      
-        << ">= ¼  ms: " << std::setw(14) << quarterMilliOrMore << ">= 10 sec: " << tenSecOrMore    << '\n'        
-        << ">= ½  ms: " << std::setw(14) << halfMilliOrMore    << ">= 30 sec: " << thirtySecOrMore << '\n'     
-        << ">= 1  ms: " << std::setw(14) << milliOrMore        << ">=  1 min: " << minOrMore       << '\n'        
-        << ">= ¼ sec: " << std::setw(14) << quarterSecOrMore   << ">=  5 min: " << fiveMinOrMore   << '\n'      
-        << ">= ½ sec: " << std::setw(14) << halfSecOrMore      << ">= 10 min: " << tenMinOrMore    << '\n'        
-        << ">= 1 sec: " << std::setw(14) << secOrMore          << ">= 30 min: " << thirtyMinOrMore << "\n\n";      
+    //prints each counter, in two columns
+    for (size_t i = 0; i < subdivisionCount / 2; ++i) 
+        std::wcout << std::format(L"{:{}}{}\n", 
+            std::format(L"{}{}", subdivisions[i].displayText, subdivisions[i].count), miniPanelWidth, 
+            std::format(L"{}{}", subdivisions[i + (subdivisionCount / 2)].displayText, subdivisions[i + (subdivisionCount / 2)].count));
 }
 
 void printDivider(const std::string&& leftHeader, const std::string&& rightHeader) {
     static constexpr size_t indent = 3;
-    std::string header("\033[1;4;97;53m" + std::string(panelWidth * 2, '-') + "\033[0m\n");
-    header.replace(header.find('-') + indent, leftHeader.size(), leftHeader, 0);
-    header.replace(header.find('-') + indent + panelWidth, rightHeader.size(), rightHeader, 0);
-    std::cout << header;
+    std::cout << std::format("\033[1;4;97;53m{:-<{}}{:-<{}}{:-<{}}\033[0m\n", "", indent, leftHeader, panelWidth, rightHeader, panelWidth - indent);
 }
 
-void printFactorization(const std::vector<factor>& factorization, std::ostream& stream) {
-    if (factorization.empty()) [[unlikely]] {
-        stream << " DNE";
-    } 
+std::string toString(const std::vector<factor>& factorization) {
+    if (factorization.empty()) [[unlikely]]
+        return " DNE";
     else {
-        stream << '=';
+        std::string out("="); // intentionally == in practice
         for (const auto& factor : factorization) {
-            stream << ' ' << factor.base;
-            if (factor.exp > 1) stream << '^' << (u_short)factor.exp;
+            out += std::format(" {}", factor.base);
+            if (factor.exp > 1) out += std::format("^{}", (unsigned short)factor.exp);
         }
+        return out;
     }
 }
 
