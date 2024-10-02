@@ -1,13 +1,16 @@
 #pragma once
 
+#include <array>
 #include <chrono>
 #include <cstdint>
 #include <functional>
-#include <iomanip>
+#include <format>
+#include <string>
 #include <iostream>
 #include <vector>
 
 constexpr size_t panelWidth = 64;
+constexpr size_t miniPanelWidth = 26;
 
 //base exponent pair
 struct factor {
@@ -27,20 +30,43 @@ class timeCategories {
 public:
     void increment(const long double timeMs);
     //output contents of the object to cout
-    void print(void) const;
+    void printout(void) const;
     
 private:
-    int subMicro = 0, microOrMore = 0, 
-        quarterMilliOrMore = 0, halfMilliOrMore = 0, milliOrMore = 0, 
-        quarterSecOrMore = 0, halfSecOrMore = 0, secOrMore = 0, 
-        threeSecOrMore = 0, fiveSecOrMore = 0, tenSecOrMore = 0, thirtySecOrMore = 0, 
-        minOrMore = 0, fiveMinOrMore = 0, tenMinOrMore = 0, thirtyMinOrMore = 0;
+    struct subdivision
+    {
+        std::wstring displayText;
+        long double floorMilliEquivalent;
+        int count;
+    };
+    
+    constexpr static int subdivisionCount = 16;
+
+    std::array<subdivision, subdivisionCount> subdivisions { subdivision
+        { L"<  1  μs: ",  0       , 0 },
+        { L">= 1  μs: ",  .0001   , 0 },
+        { L">= ¼  ms: ",  .25     , 0 },
+        { L">= ½  ms: ",  .5      , 0 },
+        { L">= 1  ms: ",  1       , 0 },
+        { L">= ¼ sec: ",  250     , 0 },
+        { L">= ½ sec: ",  500     , 0 },
+        { L">= 1 sec: ",  1000    , 0 },
+
+        { L">=  3 sec: ", 3000    , 0 },
+        { L">=  5 sec: ", 5000    , 0 },
+        { L">= 10 sec: ", 10000   , 0 },
+        { L">= 30 sec: ", 30000   , 0 },
+        { L">=  1 min: ", 60000   , 0 },
+        { L">=  5 min: ", 3000000 , 0 },
+        { L">= 10 min: ", 6000000 , 0 },
+        { L">= 30 min: ", 18000000, 0 } 
+    };
 };
 
 void printDivider(const std::string&& leftHeader = "", const std::string&& rightHeader = "");
  
-//takes a prime factorization as returned by primeFactorization() and prints it to stream
-void printFactorization(const std::vector<factor>& factorization, std::ostream& stream = std::cout); 
+//takes a prime factorization as returned by primeFactorization() and converts it to a string
+std::string toString(const std::vector<factor>& factorization); 
 
 //compares newItem against existingRankings, inserting if applicable
 //comparison should return true for objects that should be higher ranked
