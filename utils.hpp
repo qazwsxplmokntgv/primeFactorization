@@ -34,7 +34,7 @@ class timeCategories {
 public:
     void increment(const long double timeMs);
     //output contents of the object to cout
-    void printoutout(void) const;
+    void printout(void) const;
     
 private:
     struct subdivision
