@@ -14,7 +14,6 @@
 
 constexpr size_t panelWidth = 64;
 constexpr size_t miniPanelWidth = 26;
-constexpr size_t miniPanelWidth = 26;
 
 //base exponent pair
 struct factor {
@@ -34,7 +33,7 @@ class timeCategories {
 public:
     void increment(const long double timeMs);
     //output contents of the object to cout
-    void printoutout(void) const;
+    void printout(void) const;
     
 private:
     struct subdivision
