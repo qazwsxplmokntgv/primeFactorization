@@ -10,9 +10,6 @@ void timeCategories::increment(const long double timeMs) {
     }
 }
 
-//note: what the fuck?? why is it doing that (see output)
-//genuinely how is that happening
-//update its because of the special characters fuck me
 void timeCategories::printout(void) const {
     printDivider("Counts (fastest applicable category only)");
     //prints each counter, in two columns
