@@ -5,7 +5,7 @@ void sequence::findUserRequestedFactorizations(unsigned long long count) {
     for (unsigned long long i = 1; i <= count; ++i) {
         factorizedNumInfo infoSet; 
 
-        std::cout << '(' << i << '/' << count << ')' << " Num: ";
+        std::cout << std::format("({}/{}) Num: ", i, count);
         std::cin >> infoSet.n;
         
         //times the operation
@@ -13,10 +13,10 @@ void sequence::findUserRequestedFactorizations(unsigned long long count) {
         infoSet.factorization = primes::primeFactorization(infoSet.n);
         infoSet.calcTime = std::chrono::duration<long double, std::milli>(std::chrono::steady_clock::now() - start);
 
-        printFactorization(infoSet.factorization);
-        //displays time taken to find the factorization
-        std::cout << '\n' << infoSet.calcTime.count() << "ms\n\n";
+        //displays factorization and respective calculation time
+        std::cout << std::format("{}\n{}\n\n", toString(infoSet.factorization), infoSet.calcTime);
 
+        //passes info along to calculate stats shown on program conclusion
         stats.handleNewTime(std::move(infoSet));
     }
     stats.completeFinalCalculations();
@@ -25,12 +25,12 @@ void sequence::findUserRequestedFactorizations(unsigned long long count) {
 
 void sequence::testRandomNumberFactorizations(unsigned long long count, const bool shouldReportEachFactorization, const unsigned long long maxN) {
     //set up prng machine
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    std::mt19937 gen(std::random_device{}());
     std::uniform_int_distribution<unsigned long long> flatDistr(0, maxN);
 
     //collection of stats from upcoming calculation time data
     //stores a flexible number of records in a few categories based on the log of the count, with a minimum of 3
+    //also starts the programs overall runtime timer
     statCollection stats(count, std::max((unsigned int)log10l(count), 3u), maxN);
 
     for (unsigned long long i = 1; i <= count; ++i) {
@@ -38,9 +38,9 @@ void sequence::testRandomNumberFactorizations(unsigned long long count, const bo
         factorizedNumInfo infoSet { flatDistr(gen) };
 
         if (shouldReportEachFactorization) //display the number generated
-            std::cout << '(' << i << '/' << count << ')' << ": " << infoSet.n << std::endl;
+            std::cout << std::format("({}/{}): {}\n", i, count, infoSet.n);
         else if (100 * i / count != 100 * (i - 1) / count) //display progress through count as a % 
-            std::cout << "\033[A\33[2K\r" << 100 * i / count << "%\n";
+            std::cout << std::format("\033[A\33[2K\r{}%\n", 100 * i / count);
 
         //times the operation
         auto start = std::chrono::steady_clock::now();
@@ -48,10 +48,9 @@ void sequence::testRandomNumberFactorizations(unsigned long long count, const bo
         infoSet.calcTime = std::chrono::duration<long double, std::milli>(std::chrono::steady_clock::now() - start);
 
         //prints out the individual factorization and respective calculation time
-        if (shouldReportEachFactorization) {
-            printFactorization(infoSet.factorization);
-            std::cout << '\n' << infoSet.calcTime.count() << "ms\n\n";
-        }
+        if (shouldReportEachFactorization) 
+            std::cout << std::format("{}\n{}\n\n", toString(infoSet.factorization), infoSet.calcTime);
+
         stats.handleNewTime(std::move(infoSet));
     }
     stats.completeFinalCalculations();

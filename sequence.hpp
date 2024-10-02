@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <format>
 #include <random>
 
 #include "stats.hpp"

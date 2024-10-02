@@ -2,7 +2,7 @@
 
 #include <chrono>
 #include <cmath>
-#include <iomanip>
+#include <format>
 #include <iostream>
 #include <vector>
 #include "utils.hpp"
@@ -21,7 +21,7 @@ public:
 
 private:
     void initialize(const size_t recordCount);
-    void printRecordList(const std::vector<factorizedNumInfo>& recordList) const;
+    //TODO parameterize format
     void printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList) const;
 
     //rank lists
