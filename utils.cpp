@@ -23,20 +23,3 @@ void printDivider(const std::string&& leftHeader, const std::string&& rightHeade
     static constexpr size_t indent = 3;
     std::cout << std::format("\033[1;4;97;53m{:-<{}}{:-<{}}{:-<{}}\033[0m\n", "", indent, leftHeader, panelWidth, rightHeader, panelWidth - indent);
 }
-
-
-void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, const std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison) {
-    //for each stored value, 
-    for (size_t i = 0; i < existingRankings.size(); ++i) { 
-        //find if the new factorization outranks any existing ranked factorizations
-        if (comparison(newItem, existingRankings[i])) {
-            //shifts indexes at or after i to the right, discarding the lowest ranked value
-            for (size_t j = existingRankings.size() - 1; j > i; --j) {
-                existingRankings[j] = existingRankings[j - 1];
-            }
-            //places the new factorization into the opened slot
-            existingRankings[i] = newItem;
-            break;
-        }
-    }
-}

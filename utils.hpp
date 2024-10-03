@@ -10,9 +10,7 @@
 #include "factorization.hpp"
 
 constexpr size_t panelWidth = 64;
-constexpr size_t miniPanelWidth = 32;
-
-
+constexpr size_t miniPanelWidth = panelWidth / 2;
 
 //used to store information on noteworthy factorizations for use in concluding statistical printouts
 struct factorizedNumInfo {
@@ -60,7 +58,3 @@ private:
 
 void printDivider(const std::string&& leftHeader = "", const std::string&& rightHeader = "");
 
-
-//compares newItem against existingRankings, inserting if applicable
-//comparison should return true for objects that should be higher ranked
-void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, const std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison);
