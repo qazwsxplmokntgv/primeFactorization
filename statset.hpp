@@ -2,19 +2,21 @@
 
 #include <chrono>
 #include <cmath>
+#include <functional>
 #include <format>
-#include <iostream>
+#include <print>
+#include <string>
 #include <vector>
 #include "utils.hpp"
 
 //collection of statistics tracked as primes factorizations are calculated
-class statCollection {
+class StatSet {
 public:
     //inputCount == number of nums whose factorizations will be considered
     //recordCount == max number of fastest/slowest records to store
     //maxInput == highest possible input
-    statCollection(const unsigned long long inputCount, const size_t recordCount, const unsigned long long maxInput);
-    statCollection(const unsigned long long inputCount, const size_t recordCount);
+    StatSet(const unsigned long long inputCount, const size_t recordCount, const unsigned long long maxInput);
+    StatSet(const unsigned long long inputCount, const size_t recordCount);
     void printout(void) const;
     void handleNewTime(factorizedNumInfo&& newFactorization);
     void completeFinalCalculations(void);
@@ -38,7 +40,7 @@ private:
     std::chrono::duration<long double, std::milli> arithMean, harmonMean, geoMean, stdDev, iqMean;
     
     //counts of divisions of calcTimes
-    timeCategories categories;
+    TimeCategories categories;
 
     //timer from constructor through when complete final calculations is called
     std::chrono::duration<long double> fullSequenceRunDuration;
@@ -52,7 +54,6 @@ private:
     std::chrono::duration<long double, std::milli>runningSum = std::chrono::duration<long, std::milli>(0);
 };
 
-
 //compares newItem against existingRankings, inserting if applicable
 //comparison should return true for objects that should be higher ranked
-void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, const std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison);
+void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison);

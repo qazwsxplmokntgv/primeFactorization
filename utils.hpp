@@ -1,28 +1,18 @@
 #pragma once
 
 #include <array>
-#include <chrono>
-#include <functional>
 #include <format>
+#include <print>
 #include <string>
-#include <iostream>
-#include <vector>
 #include "factorization.hpp"
 
 constexpr size_t panelWidth = 64;
 constexpr size_t miniPanelWidth = panelWidth / 2;
 
-//used to store information on noteworthy factorizations for use in concluding statistical printouts
-struct factorizedNumInfo {
-    unsigned long long n;
-    Factorization factorization;
-    std::chrono::duration<long double, std::milli> calcTime;
-};
-
-class timeCategories {
+class TimeCategories {
 public:
     void increment(const long double timeMs);
-    //output contents of the object to cout
+    //output contents of the object to stdout
     void printout(void) const;
     
 private:

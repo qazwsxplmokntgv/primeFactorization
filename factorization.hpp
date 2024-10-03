@@ -2,6 +2,7 @@
 
 //#include <array>
 #include <cstdint>
+#include <chrono>
 #include <format>
 #include <string>
 #include <vector>
@@ -24,6 +25,7 @@ private:
     //base exponent pair
     struct factor {
         factor(unsigned long long base_, uint_fast8_t exp_) : base(base_), exp(exp_) {}
+
         unsigned long long base;
         //64 bit numbers cannot have factors with exp greater than floor(log2(2^64 - 1)) == 63
         //therefore this is guranteed to be sufficient theoretically through a 256 bit num
@@ -37,4 +39,11 @@ private:
 
     //std::array<factor, maxDistinctFactors> factors;
     //size_t factorsArrayBack = 0;
+};
+
+//used to store information on noteworthy factorizations for use in concluding statistical printouts
+struct factorizedNumInfo {
+    unsigned long long n;
+    Factorization factorization;
+    std::chrono::duration<long double, std::milli> calcTime;
 };

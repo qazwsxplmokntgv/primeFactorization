@@ -1,19 +1,19 @@
-#include "stats.hpp"
+#include "statset.hpp"
 
-statCollection::statCollection(const unsigned long long inputCount, const size_t recordCount, const unsigned long long maxInput) 
+StatSet::StatSet(const unsigned long long inputCount, const size_t recordCount, const unsigned long long maxInput) 
     : count(inputCount), recordSize(recordCount), maxN(maxInput) {
     initialize(recordCount);
 }
 
-statCollection::statCollection(const unsigned long long inputCount, const size_t recordCount) 
+StatSet::StatSet(const unsigned long long inputCount, const size_t recordCount) 
     : count(inputCount), recordSize(recordCount), maxN(0) {
     initialize(recordCount);
 }
 
-void statCollection::printout(void) const {
+void StatSet::printout(void) const {
     //stat printout header
     printDivider();
-    std::cout << std::format("{} factorizations{} calculated in {}.\n\n", count, maxN ? std::format(" of numbers <= {}", maxN) : "", fullSequenceRunDuration);
+    std::println("{} factorizations{} calculated in {}.\n", count, maxN ? std::format(" of numbers <= {}", maxN) : "", fullSequenceRunDuration);
 
     //info blocks on the fastest and slowest calculation times for factorizations
     //shows calc time, the input, and the factorization itself
@@ -31,7 +31,7 @@ void statCollection::printout(void) const {
     //string stream used to format info blocks horizontally (to better fit in one screen)
     //various statistical facts regarding calculation times 
     printDivider("Calculation Times");
-    std::cout << std::format("{}{}{}{}{}\n", 
+    std::println("{}{}{}{}{}", 
         std::format("{:{}}{}\n", 
             std::format("{}{}", "Q0: ", count ? fastest[0].calcTime : std::chrono::duration<long double, std::milli>(0)), miniPanelWidth, 
             std::format("{}{}", "Harmonic Mean:      ", harmonMean)),
@@ -52,18 +52,18 @@ void statCollection::printout(void) const {
     categories.printout();
 }
 
-void statCollection::handleNewTime(factorizedNumInfo&& newFactorization) {
+void StatSet::handleNewTime(factorizedNumInfo&& newFactorization) {
 
     //checks if the new time is elligible to join any of the rankings being tracked
     rankIfApplicable(newFactorization, fastest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem)
         { return newItem.calcTime.count() < existingItem.calcTime.count(); });
     rankIfApplicable(newFactorization, slowest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem)
         { return newItem.calcTime.count() > existingItem.calcTime.count(); });
+    //tie breaks with unique factors
     rankIfApplicable(newFactorization, mostFactors, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem)
-        //tie breaks with unique factors
         { return newItem.factorization.getFactorCount() > existingItem.factorization.getFactorCount() || (newItem.factorization.getFactorCount() == existingItem.factorization.getFactorCount() && newItem.factorization.getUniqueFactorCount() > existingItem.factorization.getUniqueFactorCount()); });
+    //tie breaks with total factors
     rankIfApplicable(newFactorization, mostUniqueFactors, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem)
-        //tie breaks with total factors
         { return newItem.factorization.getUniqueFactorCount() > existingItem.factorization.getUniqueFactorCount() || (newItem.factorization.getUniqueFactorCount() == existingItem.factorization.getUniqueFactorCount() && newItem.factorization.getFactorCount() > existingItem.factorization.getFactorCount()); });
 
     //totals a running sum of times for later use in calculating and average (used in turn for calculating deviations, variance, std deviation)
@@ -73,7 +73,7 @@ void statCollection::handleNewTime(factorizedNumInfo&& newFactorization) {
     timesData.push_back(newFactorization.calcTime);
 }
 
-void statCollection::completeFinalCalculations(void) {
+void StatSet::completeFinalCalculations(void) {
     fullSequenceRunDuration = std::chrono::steady_clock::now() - start;
 
     //avoid division by 0, as well as attempted access at [-1]
@@ -136,7 +136,7 @@ void statCollection::completeFinalCalculations(void) {
     
 }
 
-void statCollection::initialize(const size_t recordCount) {
+void StatSet::initialize(const size_t recordCount) {
     fastest.resize(recordCount, { 0ull, {}, std::chrono::duration<long double, std::milli>(std::numeric_limits<long double>::max()) });
     slowest.resize(recordCount);
     mostFactors.resize(recordCount);
@@ -145,16 +145,16 @@ void statCollection::initialize(const size_t recordCount) {
     start = std::chrono::steady_clock::now();
 }
 
-void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList) const {
+void StatSet::printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList) const {
     printRecordList(leftRecordList, rightRecordList, 
         //default format shows rank and calcTime only
         [](size_t i, std::vector<factorizedNumInfo> leftList){ return std::format("#{}: {}", i + 1, leftList[i].calcTime); },
         [](size_t i, std::vector<factorizedNumInfo> rightList){ return std::format("#{}: {}", i + 1, rightList[i].calcTime); });
 }
 
-void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList, std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)>&& leftInfoFormat, std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)>&& rightInfoFormat) const {
+void StatSet::printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList, std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)>&& leftInfoFormat, std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)>&& rightInfoFormat) const {
     for (size_t i = 0; i < std::min((unsigned long long)recordSize, count); ++i) {
-        std::cout << std::format("{:{}}{}\n{:{}}{}\n\n", 
+        std::println("{:{}}{}\n{:{}}{}\n", 
             //info
             leftInfoFormat(i, leftRecordList), panelWidth,
             rightInfoFormat(i, rightRecordList),
@@ -165,7 +165,7 @@ void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftR
     }
 }
 
-void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, const std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison) {
+void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison) {
     //for each stored value, 
     for (size_t i = 0; i < existingRankings.size(); ++i) { 
         //find if the new factorization outranks any existing ranked factorizations

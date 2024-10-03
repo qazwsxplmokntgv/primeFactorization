@@ -1,11 +1,11 @@
 #include "sequence.hpp"
 
 void sequence::findUserRequestedFactorizations(unsigned long long count) {
-    statCollection stats(count, std::max((unsigned int)log10l(count), 3u), 0);
+    StatSet stats(count, std::max((unsigned int)log10l(count), 3u), 0);
     for (unsigned long long i = 1; i <= count; ++i) {
         factorizedNumInfo infoSet; 
 
-        std::cout << std::format("({}/{}) Num: ", i, count);
+        std::print("({}/{}) Num: ", i, count);
         std::cin >> infoSet.n;
         
         //times the operation
@@ -14,7 +14,7 @@ void sequence::findUserRequestedFactorizations(unsigned long long count) {
         infoSet.calcTime = std::chrono::duration<long double, std::milli>(std::chrono::steady_clock::now() - start);
 
         //displays factorization and respective calculation time
-        std::cout << std::format("{}\n{}\n\n", infoSet.factorization.asString(), infoSet.calcTime);
+        std::println("{}\n{}\n", infoSet.factorization.asString(), infoSet.calcTime);
 
         //passes info along to calculate stats shown on program conclusion
         stats.handleNewTime(std::move(infoSet));
@@ -31,16 +31,16 @@ void sequence::testRandomNumberFactorizations(unsigned long long count, const bo
     //collection of stats from upcoming calculation time data
     //stores a flexible number of records in a few categories based on the log of the count, with a minimum of 3
     //also starts the programs overall runtime timer
-    statCollection stats(count, std::max((unsigned int)log10l(count), 3u), maxN);
+    StatSet stats(count, std::max((unsigned int)log10l(count), 3u), maxN);
 
     for (unsigned long long i = 1; i <= count; ++i) {
         //generate a number
         factorizedNumInfo infoSet { flatDistr(gen) };
 
         if (shouldReportEachFactorization) //display the number generated
-            std::cout << std::format("({}/{}): {}\n", i, count, infoSet.n);
+            std::println("({}/{}): {}", i, count, infoSet.n);
         else if (100 * i / count != 100 * (i - 1) / count || i == 1) //display progress through count as a % 
-            std::cout << std::format("\033[A\33[2K\r{}%", 100 * i / count);
+            std::print("\033[A\33[2K\r{}%", 100 * i / count);
 
         //times the operation
         auto start = std::chrono::steady_clock::now();
@@ -49,7 +49,7 @@ void sequence::testRandomNumberFactorizations(unsigned long long count, const bo
 
         //prints out the individual factorization and respective calculation time
         if (shouldReportEachFactorization) 
-            std::cout << std::format("{}\n{}\n\n", infoSet.factorization.asString(), infoSet.calcTime);
+            std::println("{}\n{}\n", infoSet.factorization.asString(), infoSet.calcTime);
 
         stats.handleNewTime(std::move(infoSet));
     }
