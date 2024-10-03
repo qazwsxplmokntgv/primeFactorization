@@ -3,21 +3,21 @@
 Factorization primes::primeFactorization(unsigned long long n) {
     Factorization basePowers;
 
-    //special case for multiples of nontrivial powers of 2
-    //allows evens to be cleanly skipped in the rest of the function
-    if (n > 1u) {
-        uint_fast8_t twosCount = 0;
-        for (; !(n & 0b1); ++twosCount) n >>= 1;
-        if (twosCount) basePowers.addNewFactor(2u, twosCount);
-    }
-
-    //sweeps across all odd primes until reaching the value of each of n's prime factors,
-    //possibly excluding the greatest prime factor as long as the square of said factor does not divide n
-    unsigned long long divisor = 1;
     //counts powers of discovered prime factors
     //doubles as an flag of n's value being lowered since previous isPrime(n...) check, which results from said powers being factored out
     //initially 1 to catch when original input is already prime
-    uint_fast8_t exp = 1;
+    uint_fast8_t exp = 0;
+
+    //special case for multiples of nontrivial powers of 2
+    //allows evens to be cleanly skipped in the rest of the function
+    if (n > 1u) {
+        for (; !(n & 0b1); ++exp) n >>= 1;
+        if (exp) basePowers.addNewFactor(2u, exp);
+    }
+    exp = 1;
+    //sweeps across all odd primes until reaching the value of each of n's prime factors,
+    //possibly excluding the greatest prime factor as long as the square of said factor does not divide n
+    unsigned long long divisor = 1;
 
     while (n > 1u) {
         //checking if n itself is prime
@@ -49,13 +49,15 @@ inline bool primes::isPrime(const unsigned long long n) {
     return isPrime(n, 5);
 }
 
-inline bool primes::isPrime(const unsigned long long n, const unsigned long long potentialFactorFloor) {
+//O(sqrt(n))
+//Ω(1)
+inline bool primes::isPrime(const unsigned long long n, const unsigned long long potentialPrimeFactorFloor) {
     //this switch is slightly faster than any obvious bitwise approaches tested so far, which all need to first check (n < 4)
     switch (n) {
-        [[unlikely]] case 0u: 
-        [[unlikely]] case 1u: return false;
-        case 2u: 
-        case 3u: return true;
+        case 0: 
+        case 1: return false;
+        case 2: 
+        case 3: return true;
     }
 
     //handles these two cases separately to allow optimizations in the for loop below
@@ -66,10 +68,10 @@ inline bool primes::isPrime(const unsigned long long n, const unsigned long long
     const unsigned long maxLessorDivisor = sqrt(n);
 
     //iterates through all odd numbers from at least 5 through the greatest odd int <= n's sqrt inclusive
-    for (unsigned long long i = std::max(potentialFactorFloor, 5ull); i <= maxLessorDivisor; i += 2u) {
+    for (unsigned long long i = std::max(potentialPrimeFactorFloor, 5ull); i <= maxLessorDivisor; i += 2u) {
         //skip multiples of 3 (very common case); severely diminishing returns for numbers beyond this
         //additionally checking for 5 heuristically appears to slow runtime on average by about 1.5x, slightly worse than case with no such skips at all (~1.4x)
-        if (i % 3 == 0) i += 2u;
+        if (i % 3u == 0) i += 2u;
         //if n is divisible by any of these values, n is not prime
         if (n % i == 0) return false;
     }
