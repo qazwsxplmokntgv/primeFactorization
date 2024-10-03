@@ -39,8 +39,8 @@ void sequence::testRandomNumberFactorizations(unsigned long long count, const bo
 
         if (shouldReportEachFactorization) //display the number generated
             std::cout << std::format("({}/{}): {}\n", i, count, infoSet.n);
-        else if (100 * i / count != 100 * (i - 1) / count) //display progress through count as a % 
-            std::cout << std::format("\033[A\33[2K\r{}%\n", 100 * i / count);
+        else if (100 * i / count != 100 * (i - 1) / count || i == 1) //display progress through count as a % 
+            std::cout << std::format("\033[A\33[2K\r{}%", 100 * i / count);
 
         //times the operation
         auto start = std::chrono::steady_clock::now();
