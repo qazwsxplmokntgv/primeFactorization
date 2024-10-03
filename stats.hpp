@@ -24,13 +24,14 @@ private:
 
     void printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList) const;
     void printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList, 
-        std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)> leftInfoFormat, 
-        std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)> rightInfoFormat) const;
+        std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)>&& leftInfoFormat, 
+        std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)>&& rightInfoFormat) const;
 
     //rank lists
     std::vector<factorizedNumInfo> fastest;
     std::vector<factorizedNumInfo> slowest;
     std::vector<factorizedNumInfo> mostFactors;
+    std::vector<factorizedNumInfo> mostUniqueFactors;
 
     //statistical facts
     std::chrono::duration<long double, std::milli> firstQuart, median, thirdQuart;
@@ -51,3 +52,7 @@ private:
     std::chrono::duration<long double, std::milli>runningSum = std::chrono::duration<long, std::milli>(0);
 };
 
+
+//compares newItem against existingRankings, inserting if applicable
+//comparison should return true for objects that should be higher ranked
+void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, const std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison);

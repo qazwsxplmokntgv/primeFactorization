@@ -8,12 +8,14 @@
 
 class Factorization {
 public:
-    void addNewFactor(unsigned long long base, uint_fast8_t exp);
+    Factorization();
+    void addNewFactor(const unsigned long long base, const uint_fast8_t exp);
     
     //takes a prime factorization as returned by primeFactorization() and converts it to a string
     std::string asString() const; 
     
     const int getFactorCount() const;
+    const int getUniqueFactorCount() const;
 
 private:
     //the product of the first 17 primes exceeds the 64 bit unsigned long long 
@@ -28,6 +30,7 @@ private:
         uint_fast8_t exp; 
     };
     //see exp comment above
+    //stores the total number of prime factors as sum(exp)
     uint_fast8_t factorCount = 0;
 
     std::vector<factor> factors;

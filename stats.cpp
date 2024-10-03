@@ -21,12 +21,12 @@ void statCollection::printout(void) const {
     printRecordList(fastest, slowest);
 
     //as above, for factorizations with the most factors
-    printDivider("Factorizations With Most Factors", "Mysterious Fourth Thing");
+    printDivider("Factorizations With Most Total Factors", "Factorizations With Most Unique Factors");
     
 
-    printRecordList(mostFactors, {}, 
+    printRecordList(mostFactors, mostUniqueFactors, 
         [](size_t i, std::vector<factorizedNumInfo> leftList){ return std::format("#{}: {} | {}", i + 1, leftList[i].factorization.getFactorCount(), leftList[i].calcTime); },
-        [](size_t i, std::vector<factorizedNumInfo> rightList){ return ""; });
+        [](size_t i, std::vector<factorizedNumInfo> rightList){ return std::format("#{}: {} | {}", i + 1, rightList[i].factorization.getUniqueFactorCount(), rightList[i].calcTime); });
 
     //string stream used to format info blocks horizontally (to better fit in one screen)
     //various statistical facts regarding calculation times 
@@ -55,9 +55,16 @@ void statCollection::printout(void) const {
 void statCollection::handleNewTime(factorizedNumInfo&& newFactorization) {
 
     //checks if the new time is elligible to join any of the rankings being tracked
-    rankIfApplicable(newFactorization, fastest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem){ return newItem.calcTime.count() < existingItem.calcTime.count(); });
-    rankIfApplicable(newFactorization, slowest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem){ return newItem.calcTime.count() > existingItem.calcTime.count(); });
-    rankIfApplicable(newFactorization, mostFactors, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem){ return newItem.factorization.getFactorCount() > existingItem.factorization.getFactorCount(); });
+    rankIfApplicable(newFactorization, fastest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem)
+        { return newItem.calcTime.count() < existingItem.calcTime.count(); });
+    rankIfApplicable(newFactorization, slowest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem)
+        { return newItem.calcTime.count() > existingItem.calcTime.count(); });
+    rankIfApplicable(newFactorization, mostFactors, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem)
+        //tie breaks with unique factors
+        { return newItem.factorization.getFactorCount() > existingItem.factorization.getFactorCount() || (newItem.factorization.getFactorCount() == existingItem.factorization.getFactorCount() && newItem.factorization.getUniqueFactorCount() > existingItem.factorization.getUniqueFactorCount()); });
+    rankIfApplicable(newFactorization, mostUniqueFactors, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem)
+        //tie breaks with total factors
+        { return newItem.factorization.getUniqueFactorCount() > existingItem.factorization.getUniqueFactorCount() || (newItem.factorization.getUniqueFactorCount() == existingItem.factorization.getUniqueFactorCount() && newItem.factorization.getFactorCount() > existingItem.factorization.getFactorCount()); });
 
     //totals a running sum of times for later use in calculating and average (used in turn for calculating deviations, variance, std deviation)
     runningSum += newFactorization.calcTime;
@@ -133,6 +140,7 @@ void statCollection::initialize(const size_t recordCount) {
     fastest.resize(recordCount, { 0ull, {}, std::chrono::duration<long double, std::milli>(std::numeric_limits<long double>::max()) });
     slowest.resize(recordCount);
     mostFactors.resize(recordCount);
+    mostUniqueFactors.resize(recordCount);
     timesData.reserve(count);
     start = std::chrono::steady_clock::now();
 }
@@ -144,8 +152,7 @@ void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftR
         [](size_t i, std::vector<factorizedNumInfo> rightList){ return std::format("#{}: {}", i + 1, rightList[i].calcTime); });
 }
 
-//TODO add support for true empty right panels
-void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList, std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)> leftInfoFormat, std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)> rightInfoFormat) const {
+void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList, std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)>&& leftInfoFormat, std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)>&& rightInfoFormat) const {
     for (size_t i = 0; i < std::min((unsigned long long)recordSize, count); ++i) {
         std::cout << std::format("{:{}}{}\n{:{}}{}\n\n", 
             //info
@@ -155,5 +162,21 @@ void statCollection::printRecordList(const std::vector<factorizedNumInfo>& leftR
             std::format("{} ={}", leftRecordList[i].n, leftRecordList[i].factorization.asString()), panelWidth,
             (rightRecordList.size() > i) ? 
             std::format("{} ={}", rightRecordList[i].n, rightRecordList[i].factorization.asString()) : "");
+    }
+}
+
+void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, const std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison) {
+    //for each stored value, 
+    for (size_t i = 0; i < existingRankings.size(); ++i) { 
+        //find if the new factorization outranks any existing ranked factorizations
+        if (comparison(newItem, existingRankings[i])) {
+            //shifts indexes at or after i to the right, discarding the lowest ranked value
+            for (size_t j = existingRankings.size() - 1; j > i; --j) {
+                existingRankings[j] = existingRankings[j - 1];
+            }
+            //places the new factorization into the opened slot
+            existingRankings[i] = newItem;
+            break;
+        }
     }
 }
