@@ -34,7 +34,7 @@ int main(void) {
             std::cin >> answer;
             answer = tolower(answer);
         } while (answer != 'y' && answer != 'n');
-        std::cout << '\n';
+        std::cout << "\n\n";
 
         sequence::testRandomNumberFactorizations(count, answer == 'y', maxN);
         break;
