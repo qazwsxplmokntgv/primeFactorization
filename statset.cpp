@@ -1,13 +1,17 @@
 #include "statset.hpp"
 
-StatSet::StatSet(const unsigned long long inputCount, const size_t recordCount, const unsigned long long maxInput) 
-    : count(inputCount), recordSize(recordCount), maxN(maxInput) {
-    initialize(recordCount);
+StatSet::StatSet(const unsigned long long inputCount, const unsigned long long maxInput) : 
+    count(inputCount), maxN(maxInput), recordSize(std::max((unsigned int)log10l(count), 3u)),
+    fastest(recordSize), slowest(recordSize), 
+    mostFactors(recordSize), mostUniqueFactors(recordSize) {
+    initialize();
 }
 
-StatSet::StatSet(const unsigned long long inputCount, const size_t recordCount) 
-    : count(inputCount), recordSize(recordCount), maxN(0) {
-    initialize(recordCount);
+StatSet::StatSet(const unsigned long long inputCount) : 
+    count(inputCount), maxN(0ull), recordSize(std::max((unsigned int)log10l(count), 3u)),
+    fastest(recordSize), slowest(recordSize), 
+    mostFactors(recordSize), mostUniqueFactors(recordSize) {
+    initialize();
 }
 
 void StatSet::printout(void) const {
@@ -25,15 +29,15 @@ void StatSet::printout(void) const {
     
 
     printRecordList(mostFactors, mostUniqueFactors, 
-        [](size_t i, std::vector<factorizedNumInfo> leftList){ return std::format("#{}: {} | {}", i + 1, leftList[i].factorization.getFactorCount(), leftList[i].calcTime); },
-        [](size_t i, std::vector<factorizedNumInfo> rightList){ return std::format("#{}: {} | {}", i + 1, rightList[i].factorization.getUniqueFactorCount(), rightList[i].calcTime); });
+        [](size_t i, const RankingList& leftList){ return std::format("#{}: {} | {}", i + 1, leftList.viewRanks()[i].factorization.getFactorCount(), leftList.viewRanks()[i].calcTime); },
+        [](size_t i, const RankingList& rightList){ return std::format("#{}: {} | {}", i + 1, rightList.viewRanks()[i].factorization.getUniqueFactorCount(), rightList.viewRanks()[i].calcTime); });
 
     //string stream used to format info blocks horizontally (to better fit in one screen)
     //various statistical facts regarding calculation times 
     printDivider("Calculation Times");
     std::println("{}{}{}{}{}", 
         std::format("{:{}}{}\n", 
-            std::format("{}{}", "Q0: ", count ? fastest[0].calcTime : std::chrono::duration<long double, std::milli>(0)), miniPanelWidth, 
+            std::format("{}{}", "Q0: ", count ? fastest.viewRanks()[0].calcTime : std::chrono::duration<long double, std::milli>(0)), miniPanelWidth, 
             std::format("{}{}", "Harmonic Mean:      ", harmonMean)),
         std::format("{:{}}{}\n", 
             std::format("{}{}", "Q1: ", firstQuart), miniPanelWidth, 
@@ -45,32 +49,26 @@ void StatSet::printout(void) const {
             std::format("{}{}", "Q3: ", thirdQuart), miniPanelWidth, 
             std::format("{}{}", "Arithmetic Mean:    ", arithMean)),
         std::format("{:{}}{}\n", 
-            std::format("{}{}", "Q4: ", slowest[0].calcTime), miniPanelWidth, 
+            std::format("{}{}", "Q4: ", slowest.viewRanks()[0].calcTime), miniPanelWidth, 
             std::format("{}{}", "Standard Deviation: ", stdDev))
     );
     //prints an overview of the calculation time distribution
+    printDivider("Counts (fastest applicable category only)");
     categories.printout();
 }
 
 void StatSet::handleNewTime(factorizedNumInfo&& newFactorization) {
-
-    //checks if the new time is elligible to join any of the rankings being tracked
-    rankIfApplicable(newFactorization, fastest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem)
-        { return newItem.calcTime.count() < existingItem.calcTime.count(); });
-    rankIfApplicable(newFactorization, slowest, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem)
-        { return newItem.calcTime.count() > existingItem.calcTime.count(); });
-    //tie breaks with unique factors
-    rankIfApplicable(newFactorization, mostFactors, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem)
-        { return newItem.factorization.getFactorCount() > existingItem.factorization.getFactorCount() || (newItem.factorization.getFactorCount() == existingItem.factorization.getFactorCount() && newItem.factorization.getUniqueFactorCount() > existingItem.factorization.getUniqueFactorCount()); });
-    //tie breaks with total factors
-    rankIfApplicable(newFactorization, mostUniqueFactors, [](const factorizedNumInfo& newItem, const factorizedNumInfo& existingItem)
-        { return newItem.factorization.getUniqueFactorCount() > existingItem.factorization.getUniqueFactorCount() || (newItem.factorization.getUniqueFactorCount() == existingItem.factorization.getUniqueFactorCount() && newItem.factorization.getFactorCount() > existingItem.factorization.getFactorCount()); });
-
     //totals a running sum of times for later use in calculating and average (used in turn for calculating deviations, variance, std deviation)
     runningSum += newFactorization.calcTime;
 
     //records the calculation time for calculation of a few statistical measures after completion
     timesData.push_back(newFactorization.calcTime);
+  
+    //compares new item against each ranking list, inserting if and when appropriate
+    fastest.checkAndRank(newFactorization);
+    slowest.checkAndRank(newFactorization);
+    mostFactors.checkAndRank(newFactorization);
+    mostUniqueFactors.checkAndRank(newFactorization);
 }
 
 void StatSet::completeFinalCalculations(void) {
@@ -136,47 +134,27 @@ void StatSet::completeFinalCalculations(void) {
     
 }
 
-void StatSet::initialize(const size_t recordCount) {
-    fastest.resize(recordCount, { 0ull, {}, std::chrono::duration<long double, std::milli>(std::numeric_limits<long double>::max()) });
-    slowest.resize(recordCount);
-    mostFactors.resize(recordCount);
-    mostUniqueFactors.resize(recordCount);
+void StatSet::initialize() {
     timesData.reserve(count);
     start = std::chrono::steady_clock::now();
 }
 
-void StatSet::printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList) const {
+void StatSet::printRecordList(const RankingList& leftRecordList, const RankingList& rightRecordList) const {
     printRecordList(leftRecordList, rightRecordList, 
         //default format shows rank and calcTime only
-        [](size_t i, std::vector<factorizedNumInfo> leftList){ return std::format("#{}: {}", i + 1, leftList[i].calcTime); },
-        [](size_t i, std::vector<factorizedNumInfo> rightList){ return std::format("#{}: {}", i + 1, rightList[i].calcTime); });
+        [](size_t i, const RankingList& leftList){ return std::format("#{}: {}", i + 1, leftList.viewRanks()[i].calcTime); },
+        [](size_t i, const RankingList& rightList){ return std::format("#{}: {}", i + 1, rightList.viewRanks()[i].calcTime); });
 }
 
-void StatSet::printRecordList(const std::vector<factorizedNumInfo>& leftRecordList, const std::vector<factorizedNumInfo>& rightRecordList, std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)>&& leftInfoFormat, std::function<const std::string(size_t index, const std::vector<factorizedNumInfo>& list)>&& rightInfoFormat) const {
+void StatSet::printRecordList(const RankingList& leftRecordList, const RankingList& rightRecordList, std::function<const std::string(size_t index, const RankingList& list)>&& leftInfoFormat, std::function<const std::string(size_t index, const RankingList& list)>&& rightInfoFormat) const {
     for (size_t i = 0; i < std::min((unsigned long long)recordSize, count); ++i) {
         std::println("{:{}}{}\n{:{}}{}\n", 
             //info
             leftInfoFormat(i, leftRecordList), panelWidth,
             rightInfoFormat(i, rightRecordList),
             //factorizations themselves
-            std::format("{} ={}", leftRecordList[i].n, leftRecordList[i].factorization.asString()), panelWidth,
-            (rightRecordList.size() > i) ? 
-            std::format("{} ={}", rightRecordList[i].n, rightRecordList[i].factorization.asString()) : "");
-    }
-}
-
-void rankIfApplicable(const factorizedNumInfo& newItem, std::vector<factorizedNumInfo>& existingRankings, std::function<bool(const factorizedNumInfo&, const factorizedNumInfo&)>&& comparison) {
-    //for each stored value, 
-    for (size_t i = 0; i < existingRankings.size(); ++i) { 
-        //find if the new factorization outranks any existing ranked factorizations
-        if (comparison(newItem, existingRankings[i])) {
-            //shifts indexes at or after i to the right, discarding the lowest ranked value
-            for (size_t j = existingRankings.size() - 1; j > i; --j) {
-                existingRankings[j] = existingRankings[j - 1];
-            }
-            //places the new factorization into the opened slot
-            existingRankings[i] = newItem;
-            break;
-        }
+            std::format("{} ={}", leftRecordList.viewRanks()[i].n, leftRecordList.viewRanks()[i].factorization.asString()), panelWidth,
+            (rightRecordList.viewRanks().size() > i) ? 
+            std::format("{} ={}", rightRecordList.viewRanks()[i].n, rightRecordList.viewRanks()[i].factorization.asString()) : "");
     }
 }
