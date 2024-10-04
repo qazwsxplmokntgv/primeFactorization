@@ -1,7 +1,7 @@
 #include "sequence.hpp"
 
 void sequence::findUserRequestedFactorizations(unsigned long long count) {
-    StatSet stats(count, std::max((unsigned int)log10l(count), 3u), 0);
+    StatSet stats(count);
     for (unsigned long long i = 1; i <= count; ++i) {
         factorizedNumInfo infoSet; 
 
@@ -31,7 +31,7 @@ void sequence::testRandomNumberFactorizations(unsigned long long count, const bo
     //collection of stats from upcoming calculation time data
     //stores a flexible number of records in a few categories based on the log of the count, with a minimum of 3
     //also starts the programs overall runtime timer
-    StatSet stats(count, std::max((unsigned int)log10l(count), 3u), maxN);
+    StatSet stats(count, maxN);
 
     for (unsigned long long i = 1; i <= count; ++i) {
         //generate a number
@@ -40,7 +40,7 @@ void sequence::testRandomNumberFactorizations(unsigned long long count, const bo
         if (shouldReportEachFactorization) //display the number generated
             std::println("({}/{}): {}", i, count, infoSet.n);
         else if (100 * i / count != 100 * (i - 1) / count || i == 1) //display progress through count as a % 
-            std::print("\033[A\33[2K\r{}%", 100 * i / count);
+            std::println("\033[A\33[2K\r{}%", 100 * i / count);
 
         //times the operation
         auto start = std::chrono::steady_clock::now();
