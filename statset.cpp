@@ -26,8 +26,6 @@ void StatSet::printout(void) const {
 
     //as above, for factorizations with the most factors
     printDivider("Factorizations With Most Total Factors", "Factorizations With Most Unique Factors");
-    
-
     printRecordList(mostFactors, mostUniqueFactors, 
         [](size_t i, const RankingList& leftList){ return std::format("#{}: {} | {}", i + 1, leftList.viewEntryAt(i).factorization.getFactorCount(), leftList.viewEntryAt(i).calcTime); },
         [](size_t i, const RankingList& rightList){ return std::format("#{}: {} | {}", i + 1, rightList.viewEntryAt(i).factorization.getUniqueFactorCount(), rightList.viewEntryAt(i).calcTime); });

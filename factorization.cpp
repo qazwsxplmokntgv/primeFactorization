@@ -7,15 +7,15 @@ Factorization::Factorization() {
 }
 
 void Factorization::addNewFactor(const unsigned long long base, const uint_fast8_t exp) {
-    factors.emplace_back(base, exp);
     factorCount += exp;
+    factors.emplace_back(base, exp);
 }
 
 std::string Factorization::asString() const {
     if (factors.empty()) 
         return "= DNE";
     else {
-        std::string out("="); // intentionally == in practice
+        std::string out("="); 
         for (const auto& fac : factors) {
             out += std::format(" {}", fac.base);
             if (fac.exp > 1) out += std::format("^{}", (unsigned short)fac.exp);
