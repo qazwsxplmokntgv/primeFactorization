@@ -1,7 +1,8 @@
 #include "factorization.hpp"
 
 Factorization::Factorization() {
-    //easily sufficient for most cases, with at most 1 reallocation required to fit larger factorizations (capped at 16 with 64 bit unsigned ints)
+    //covers the vast majority of factorizations, including the slow case where the 2nd largest factor is very large
+    //in worst case, requires no more than 1 reallocation
     factors.reserve(11);
 }
 
@@ -11,7 +12,7 @@ void Factorization::addNewFactor(const unsigned long long base, const uint_fast8
 }
 
 std::string Factorization::asString() const {
-    if (factors.empty()) [[unlikely]]
+    if (factors.empty()) 
         return "= DNE";
     else {
         std::string out("="); // intentionally == in practice

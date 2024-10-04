@@ -77,3 +77,18 @@ inline bool primes::isPrime(const unsigned long long n, const unsigned long long
     }
     return true;
 }
+
+// inline bool primes::isPrimeRemembers(const unsigned long long n) {
+//     return isPrimeRemembers(n, 5);
+// }
+
+// inline bool primes::isPrimeRemembers(const unsigned long long n, const unsigned long long potentialPrimeFactorFloor) {
+//     if (knownNonPrimes.contains(n)) return false;
+//     if (!isPrime(n, potentialPrimeFactorFloor)) {
+//         knownNonPrimes.insert(n);
+//         knownNonPrimes.insert(n >> 1);
+//         knownNonPrimes.insert(n >> 2);
+//         return false; 
+//     }
+//     return true;
+// }
