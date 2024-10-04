@@ -29,15 +29,15 @@ void StatSet::printout(void) const {
     
 
     printRecordList(mostFactors, mostUniqueFactors, 
-        [](size_t i, const RankingList& leftList){ return std::format("#{}: {} | {}", i + 1, leftList.viewRanks()[i].factorization.getFactorCount(), leftList.viewRanks()[i].calcTime); },
-        [](size_t i, const RankingList& rightList){ return std::format("#{}: {} | {}", i + 1, rightList.viewRanks()[i].factorization.getUniqueFactorCount(), rightList.viewRanks()[i].calcTime); });
+        [](size_t i, const RankingList& leftList){ return std::format("#{}: {} | {}", i + 1, leftList.viewEntryAt(i).factorization.getFactorCount(), leftList.viewEntryAt(i).calcTime); },
+        [](size_t i, const RankingList& rightList){ return std::format("#{}: {} | {}", i + 1, rightList.viewEntryAt(i).factorization.getUniqueFactorCount(), rightList.viewEntryAt(i).calcTime); });
 
     //string stream used to format info blocks horizontally (to better fit in one screen)
     //various statistical facts regarding calculation times 
     printDivider("Calculation Times");
     std::println("{}{}{}{}{}", 
         std::format("{:{}}{}\n", 
-            std::format("{}{}", "Q0: ", count ? fastest.viewRanks()[0].calcTime : std::chrono::duration<long double, std::milli>(0)), miniPanelWidth, 
+            std::format("{}{}", "Q0: ", count ? fastest.viewEntryAt(0).calcTime : std::chrono::duration<long double, std::milli>(0)), miniPanelWidth, 
             std::format("{}{}", "Harmonic Mean:      ", harmonMean)),
         std::format("{:{}}{}\n", 
             std::format("{}{}", "Q1: ", firstQuart), miniPanelWidth, 
@@ -49,7 +49,7 @@ void StatSet::printout(void) const {
             std::format("{}{}", "Q3: ", thirdQuart), miniPanelWidth, 
             std::format("{}{}", "Arithmetic Mean:    ", arithMean)),
         std::format("{:{}}{}\n", 
-            std::format("{}{}", "Q4: ", slowest.viewRanks()[0].calcTime), miniPanelWidth, 
+            std::format("{}{}", "Q4: ", slowest.viewEntryAt(0).calcTime), miniPanelWidth, 
             std::format("{}{}", "Standard Deviation: ", stdDev))
     );
     //prints an overview of the calculation time distribution
@@ -142,8 +142,8 @@ void StatSet::initialize() {
 void StatSet::printRecordList(const RankingList& leftRecordList, const RankingList& rightRecordList) const {
     printRecordList(leftRecordList, rightRecordList, 
         //default format shows rank and calcTime only
-        [](size_t i, const RankingList& leftList){ return std::format("#{}: {}", i + 1, leftList.viewRanks()[i].calcTime); },
-        [](size_t i, const RankingList& rightList){ return std::format("#{}: {}", i + 1, rightList.viewRanks()[i].calcTime); });
+        [](size_t i, const RankingList& leftList){ return std::format("#{}: {}", i + 1, leftList.viewEntryAt(i).calcTime); },
+        [](size_t i, const RankingList& rightList){ return std::format("#{}: {}", i + 1, rightList.viewEntryAt(i).calcTime); });
 }
 
 void StatSet::printRecordList(const RankingList& leftRecordList, const RankingList& rightRecordList, std::function<const std::string(size_t index, const RankingList& list)>&& leftInfoFormat, std::function<const std::string(size_t index, const RankingList& list)>&& rightInfoFormat) const {
@@ -153,8 +153,7 @@ void StatSet::printRecordList(const RankingList& leftRecordList, const RankingLi
             leftInfoFormat(i, leftRecordList), panelWidth,
             rightInfoFormat(i, rightRecordList),
             //factorizations themselves
-            std::format("{} ={}", leftRecordList.viewRanks()[i].n, leftRecordList.viewRanks()[i].factorization.asString()), panelWidth,
-            (rightRecordList.viewRanks().size() > i) ? 
-            std::format("{} ={}", rightRecordList.viewRanks()[i].n, rightRecordList.viewRanks()[i].factorization.asString()) : "");
+            std::format("{} ={}", leftRecordList.viewEntryAt(i).n, leftRecordList.viewEntryAt(i).factorization.asString()), panelWidth,
+            std::format("{} ={}", rightRecordList.viewEntryAt(i).n, rightRecordList.viewEntryAt(i).factorization.asString()));
     }
 }

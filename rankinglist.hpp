@@ -9,7 +9,7 @@ public:
     //compares newItem against the existing ranked items, if any
     void checkAndRank(const factorizedNumInfo& newItem);
 
-    const std::vector<factorizedNumInfo>& viewRanks() const;
+    const factorizedNumInfo& viewEntryAt(size_t idx) const;
 
 protected:
     //should check newItem against the item ranked at idx

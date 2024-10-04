@@ -16,9 +16,10 @@ void RankingList::checkAndRank(const factorizedNumInfo& newItem) {
     rankedItems[i] = newItem;
 }
 
-const std::vector<factorizedNumInfo>& RankingList::viewRanks() const {
-    return rankedItems;
+const factorizedNumInfo& RankingList::viewEntryAt(size_t idx) const {
+    return rankedItems[idx];
 }
+
 
 bool FastestRankingList::compareAgainst(const factorizedNumInfo& newItem, size_t idx) const {
     return newItem.calcTime < rankedItems[idx].calcTime || rankedItems[idx].calcTime == std::chrono::duration<long double, std::milli>(0);
