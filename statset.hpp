@@ -25,8 +25,8 @@ public:
 private:
     void initialize();
 
-    void printRecordList(const RankingList& leftRecordList, const RankingList& rightRecordList) const;
-    void printRecordList(const RankingList& leftRecordList, const RankingList& rightRecordList, 
+    void printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList) const;
+    void printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList, 
         std::function<const std::string(size_t index, const RankingList& list)>&& leftInfoFormat, 
         std::function<const std::string(size_t index, const RankingList& list)>&& rightInfoFormat) const;
 
@@ -52,5 +52,4 @@ private:
     std::chrono::steady_clock::time_point start;
     
     std::vector<std::chrono::duration<long double, std::milli>> timesData;
-    std::chrono::duration<long double, std::milli> runningSum = std::chrono::duration<long, std::milli>(0);
 };
