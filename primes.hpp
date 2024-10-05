@@ -12,10 +12,5 @@ namespace primes {
     //returns whether n is prime or not
     inline bool isPrime(const unsigned long long n);
     //if n is known to have no factors less than a certain number, that number can be passed in as the potentialFactorFloor
-    inline bool isPrime(const unsigned long long n, const unsigned long long potentialPrimeFactorFloor);
-
-    // inline bool isPrimeRemembers(const unsigned long long n);
-    // inline bool isPrimeRemembers(const unsigned long long n, const unsigned long long potentialPrimeFactorFloor);
-
-    // static std::unordered_set<unsigned long long> knownNonPrimes;
+    inline bool isPrime(const unsigned long long n, const unsigned long potentialPrimeFactorFloor);
 } 
