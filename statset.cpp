@@ -51,10 +51,6 @@ void StatSet::printout(void) const {
     //prints an overview of the calculation time distribution
     printDivider("Counts (fastest applicable category only)");
     categories.printout();
-   
-    // auto timesFileStream = fopen("times.txt", "w");
-    // for (const auto& calcTime : timesData) std::print(timesFileStream, "{}, ", calcTime.count());
-    // fclose(timesFileStream);
 }
 
 void StatSet::handleNewTime(factorizedNumInfo&& newFactorization) {
@@ -82,17 +78,12 @@ void StatSet::completeFinalCalculations(void) {
     firstQuart = findTimeAt((double)(timesData.size() - 1) / 4.);
     thirdQuart = findTimeAt(((double)(timesData.size() - 1) * 3. / 4.));
 
-
     std::chrono::duration<long double, std::milli> interQuartileSum = timesData.size() % 4 / 4. * (timesData[timesData.size() / 4] + timesData[(timesData.size() - 1) - (timesData.size() / 4)]);
 
     //corrects special case where count == 1 causes the below to evaluate to -nan
-    if (count == 1) { 
-        firstQuart = thirdQuart = timesData[0];
-        interQuartileSum = timesData[0] / 2.;
-    }
     //calculates arithmetic mean to be used to find variances
     std::chrono::duration<long double, std::milli> sumTime(0);
-    for (const std::chrono::duration<long double, std::milli>& factorizationTime : timesData) sumTime += factorizationTime;
+    for (const std::chrono::duration<long double, std::milli>& time : timesData) sumTime += time;
     arithMean = sumTime / count;
     
     std::chrono::duration<long double, std::milli> sumReciprocals(0), sumLogs(0), sumSquaredDeviation(0);
@@ -111,7 +102,6 @@ void StatSet::completeFinalCalculations(void) {
     geoMean =    std::chrono::duration<long double, std::milli>(expl(sumLogs.count() / count));
     iqMean =     std::chrono::duration<long double, std::milli>(interQuartileSum * 2. / count);
     stdDev =     std::chrono::duration<long double, std::milli>(sqrtl(sumSquaredDeviation.count() / count));
-    
 }
 
 void StatSet::initialize() {
