@@ -2,7 +2,7 @@
 
 Factorization::Factorization() {
     //covers the vast majority of factorizations, including the slow case where the 2nd largest factor is very large
-    //in worst case, requires no more than 1 reallocation
+    //in worst case, requires no more than 1 reallocation (1.5x scaling assumed; still also applies to 2x )
     factors.reserve(11);
 }
 
@@ -24,10 +24,10 @@ std::string Factorization::asString() const {
     }
 }
 
-const int Factorization::getFactorCount() const {
+const uint_fast8_t Factorization::getFactorCount() const {
     return factorCount;
 }
 
-const int Factorization::getUniqueFactorCount() const {
+const uint_fast8_t Factorization::getUniqueFactorCount() const {
     return factors.size();
 }

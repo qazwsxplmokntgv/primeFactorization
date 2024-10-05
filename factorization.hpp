@@ -14,13 +14,11 @@ public:
     //takes a prime factorization as returned by primeFactorization() and converts it to a string
     std::string asString() const; 
     
-    const int getFactorCount() const;
-    const int getUniqueFactorCount() const;
+    const uint_fast8_t getFactorCount() const;
+    const uint_fast8_t getUniqueFactorCount() const;
+    const uint_fast8_t getHighestFactorExponent() const; 
 
 private:
-    //the product of the first 17 primes exceeds the 64 bit unsigned long long 
-    //therefore the factorization of a 64 bit unsigned integer cannot have more than 16 distinct factors
-    constexpr static int maxDistinctFactors = 16;
     //base exponent pair
     struct factor {
         factor(unsigned long long base_, uint_fast8_t exp_) : base(base_), exp(exp_) {}
