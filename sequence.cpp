@@ -1,6 +1,6 @@
 #include "sequence.hpp"
 
-void sequence::findUserRequestedFactorizations(unsigned long long count) {
+void sequence::findUserRequestedFactorizations(const unsigned long long count) {
     StatSet stats(count);
     for (unsigned long long i = 1; i <= count; ++i) {
         factorizedNumInfo infoSet; 
@@ -23,7 +23,7 @@ void sequence::findUserRequestedFactorizations(unsigned long long count) {
     stats.printout();
 }
 
-void sequence::testRandomNumberFactorizations(unsigned long long count, const bool shouldReportEachFactorization, const unsigned long long maxN) {
+void sequence::testRandomNumberFactorizations(const unsigned long long count, const bool shouldReportEachFactorization, const unsigned long long maxN) {
     //set up prng machine
     std::mt19937 gen(std::random_device{}());
     std::uniform_int_distribution<unsigned long long> flatDistr(0, maxN);
@@ -33,9 +33,10 @@ void sequence::testRandomNumberFactorizations(unsigned long long count, const bo
     //also starts the programs overall runtime timer
     StatSet stats(count, maxN);
 
-    for (unsigned long long i = 1; i <= count; ++i) {
+    for (unsigned long long i { 1 }; i <= count; ++i) {
+        factorizedNumInfo infoSet;
         //generate a number
-        factorizedNumInfo infoSet { flatDistr(gen) };
+        infoSet.n = flatDistr(gen);
 
         if (shouldReportEachFactorization) //display the number generated
             std::println("({}/{}): {}", i, count, infoSet.n);
@@ -43,7 +44,7 @@ void sequence::testRandomNumberFactorizations(unsigned long long count, const bo
             std::println("\033[A\33[2K\r{}%", 100 * i / count);
 
         //times the operation
-        auto start = std::chrono::steady_clock::now();
+        auto start { std::chrono::steady_clock::now() };
         infoSet.factorization = primes::primeFactorization(infoSet.n);
         infoSet.calcTime = std::chrono::duration<long double, std::milli>(std::chrono::steady_clock::now() - start);
 
