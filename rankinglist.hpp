@@ -3,7 +3,7 @@
 #include <print>
 #include <functional>
 #include <vector>
-#include "factorization.hpp"
+#include "factorcalculationinfo.hpp"
 #include "utils.hpp"
 
 class RankingList {
@@ -11,9 +11,9 @@ public:
     RankingList(size_t maxSize_);
 
     //compares newItem against the existing ranked items, if any
-    void checkAndRank(const factorizedNumInfo& newItem);
+    void checkAndRank(const FactorCalculationInfo& newItem);
 
-    const factorizedNumInfo& viewEntryAt(size_t idx) const;
+    const FactorCalculationInfo& viewEntryAt(size_t idx) const;
 
     static void printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList);
     static void printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList, 
@@ -23,9 +23,9 @@ public:
 protected:
     //should check newItem against the item ranked at idx
     //if true, newItem outranks the existing item
-    virtual bool compareAgainst(const factorizedNumInfo& newItem, size_t idx) const = 0;
+    virtual bool compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const = 0;
     
-    std::vector<factorizedNumInfo> rankedItems;
+    std::vector<FactorCalculationInfo> rankedItems;
     size_t maxSize;
 };
 
@@ -33,26 +33,26 @@ class FastestRankingList : public RankingList {
 public:
     FastestRankingList(size_t maxSize) : RankingList(maxSize) {}
 private:
-    bool compareAgainst(const factorizedNumInfo& newItem, size_t idx) const;
+    bool compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const;
 };
 
 class SlowestRankingList : public RankingList {
 public:
     SlowestRankingList(size_t maxSize) : RankingList(maxSize) {}
 private:
-    bool compareAgainst(const factorizedNumInfo& newItem, size_t idx) const;
+    bool compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const;
 };
 
 class MostTotalFactorsRankingList : public RankingList {
 public:
     MostTotalFactorsRankingList(size_t maxSize) : RankingList(maxSize) {}
 private:
-    bool compareAgainst(const factorizedNumInfo& newItem, size_t idx) const;
+    bool compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const;
 };
 
 class MostUniqueFactorsRankingList : public RankingList {
 public:
     MostUniqueFactorsRankingList(size_t maxSize) : RankingList(maxSize) {}
 private:
-    bool compareAgainst(const factorizedNumInfo& newItem, size_t idx) const;
+    bool compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const;
 };

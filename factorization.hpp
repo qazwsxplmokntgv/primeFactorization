@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <chrono>
 #include <format>
 #include <string>
 #include <vector>
@@ -32,11 +31,4 @@ private:
     uint_fast8_t factorCount = 0;
 
     std::vector<factor> factors;
-};
-
-//used to store information on noteworthy factorizations for use in concluding statistical printouts
-struct factorizedNumInfo {
-    unsigned long long n;
-    Factorization factorization;
-    std::chrono::duration<long double, std::milli> calcTime;
 };

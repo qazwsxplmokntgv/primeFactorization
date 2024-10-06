@@ -4,7 +4,7 @@ RankingList::RankingList(size_t maxSize_) : maxSize(maxSize_) {
     rankedItems.resize(maxSize);
 }
 
-void RankingList::checkAndRank(const factorizedNumInfo& newItem) {
+void RankingList::checkAndRank(const FactorCalculationInfo& newItem) {
     //begin by referring to the index of the worst ranked item
     size_t i = rankedItems.size() - 1;
     //if newItem beats the worst ranked item,
@@ -18,26 +18,26 @@ void RankingList::checkAndRank(const factorizedNumInfo& newItem) {
     }
 }
 
-const factorizedNumInfo& RankingList::viewEntryAt(size_t idx) const {
+const FactorCalculationInfo& RankingList::viewEntryAt(size_t idx) const {
     return rankedItems[idx];
 }
 
-bool FastestRankingList::compareAgainst(const factorizedNumInfo& newItem, size_t idx) const {
+bool FastestRankingList::compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const {
     return newItem.calcTime < rankedItems[idx].calcTime || rankedItems[idx].calcTime == std::chrono::duration<long double, std::milli>(0);
 }
 
-bool SlowestRankingList::compareAgainst(const factorizedNumInfo& newItem, size_t idx) const {
+bool SlowestRankingList::compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const {
     return newItem.calcTime > rankedItems[idx].calcTime;
 }
 
-bool MostTotalFactorsRankingList::compareAgainst(const factorizedNumInfo& newItem, size_t idx) const {
+bool MostTotalFactorsRankingList::compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const {
     return newItem.factorization.getFactorCount() > rankedItems[idx].factorization.getFactorCount()  
         //if tied, tie break with unique factor count
         || (newItem.factorization.getFactorCount() == rankedItems[idx].factorization.getFactorCount() 
         && newItem.factorization.getUniqueFactorCount() > rankedItems[idx].factorization.getUniqueFactorCount());
 }
 
-bool MostUniqueFactorsRankingList::compareAgainst(const factorizedNumInfo& newItem, size_t idx) const {
+bool MostUniqueFactorsRankingList::compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const {
     return newItem.factorization.getUniqueFactorCount() > rankedItems[idx].factorization.getUniqueFactorCount()
         //if tied, tie break with total factor count
         || (newItem.factorization.getUniqueFactorCount() == rankedItems[idx].factorization.getUniqueFactorCount() 
