@@ -30,7 +30,7 @@ void sequence::testRandomNumberFactorizations(const unsigned long long count, co
 
     //collection of stats from upcoming calculation time data
     //stores a flexible number of records in a few categories based on the log of the count, with a minimum of 3
-    //also starts the programs overall runtime timer
+    //also starts the programs overall runtime timer on construction
     StatSet stats(count, maxN);
 
     for (unsigned long long i { 1 }; i <= count; ++i) {
