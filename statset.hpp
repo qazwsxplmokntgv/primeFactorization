@@ -24,7 +24,6 @@ public:
 private:
     void initialize();
 
-
     const unsigned long long count, maxN;
     const size_t recordSize;
 

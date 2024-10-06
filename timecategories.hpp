@@ -20,7 +20,10 @@ private:
         int count;
     };
     
-    constexpr static int subdivisionCount = 20; //must be divisible by 4
+    constexpr static int
+        columnCount = 4, //number of columns to display in
+        subdivisionCount = 20; //must be divisible by columnCount
+
 
     std::array<subdivision, subdivisionCount> subdivisions { subdivision
         { "<   1  μs: ", 0       , 0 },

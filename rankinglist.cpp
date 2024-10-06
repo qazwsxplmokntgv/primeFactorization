@@ -5,15 +5,17 @@ RankingList::RankingList(size_t maxSize_) : maxSize(maxSize_) {
 }
 
 void RankingList::checkAndRank(const factorizedNumInfo& newItem) {
+    //begin by referring to the index of the worst ranked item
     size_t i = rankedItems.size() - 1;
-    //if newItem does not beat the worst ranked item, return
-    if (!compareAgainst(newItem, i)) return;
-    //set i to the idx of the best item newItem beats
-    while (i > 0 && compareAgainst(newItem, i - 1)) --i;
-    //shift all items from the end through i inclusive back by 1
-    for (size_t j = rankedItems.size() - 1; j > i; --j) rankedItems[j] = rankedItems[j - 1];
-    //insert newItem into the opened spot
-    rankedItems[i] = newItem;
+    //if newItem beats the worst ranked item,
+    if (compareAgainst(newItem, i)) {
+        //advance i down to the idx of the best item newItem beats
+        while (i > 0 && compareAgainst(newItem, i - 1)) --i;
+        //shift all items from the end through i inclusive back by 1
+        for (size_t j = rankedItems.size() - 1; j > i; --j) rankedItems[j] = rankedItems[j - 1];
+        //insert newItem into the opened spot
+        rankedItems[i] = newItem;
+    }
 }
 
 const factorizedNumInfo& RankingList::viewEntryAt(size_t idx) const {

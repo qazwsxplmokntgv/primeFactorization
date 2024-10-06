@@ -76,7 +76,7 @@ void StatSet::completeFinalCalculations(void) {
 
     //calculates the quartiles
     firstQuart = getWeightedAverage<std::chrono::duration<long double, std::milli>>((timesData.size() - 1) * .25, timesData);
-    median = getWeightedAverage<std::chrono::duration<long double, std::milli>>((timesData.size() - 1) * .5, timesData);
+    median =     getWeightedAverage<std::chrono::duration<long double, std::milli>>((timesData.size() - 1) * .5,  timesData);
     thirdQuart = getWeightedAverage<std::chrono::duration<long double, std::milli>>((timesData.size() - 1) * .75, timesData);
 
     //calculates the weight of the values at the ends of the iqr and adds them to the interquartile sum
@@ -87,7 +87,9 @@ void StatSet::completeFinalCalculations(void) {
     
     std::chrono::duration<long double, std::milli> sumReciprocals(0), sumLogs(0), sumSquaredDeviation(0);
     for (const std::chrono::duration<long double, std::milli> time : timesData) {
+        //categorizes the time
         categories.increment(time.count()); 
+        
         //totalling of several sums to later be used in calculating respective means
         sumReciprocals      += std::chrono::duration<long double, std::milli>(1 / time.count());
         sumLogs             += std::chrono::duration<long double, std::milli>(logl(time.count()));
@@ -109,6 +111,8 @@ void StatSet::initialize() {
 }
 
 void printDivider(std::string&& leftHeader, std::string&& rightHeader) {
+    //dictates the distance between left end of panel and the first char of the header
     static constexpr size_t indent = 3;
-    std::println("\033[1;4;97;53m{:-<{}}{:-<{}}{:-<{}}\033[0m", "", indent, leftHeader, panelWidth, rightHeader, panelWidth - indent);
+    //bold underline overline bright white series of dashes with header text inserted
+    std::println("\033[1;4;53;97m{:-<{}}{:-<{}}{:-<{}}\033[0m", "", indent, leftHeader, panelWidth, rightHeader, panelWidth - indent);
 }
