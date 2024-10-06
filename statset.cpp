@@ -1,14 +1,14 @@
 #include "statset.hpp"
 
 StatSet::StatSet(const unsigned long long inputCount, const unsigned long long maxInput) : 
-    count(inputCount), maxN(maxInput), recordSize(std::max((unsigned int)log10l(count), 3u)),
+    count(inputCount), maxN(maxInput), recordSize(std::min(count, (unsigned long long)std::max((unsigned int)log10l(count), 3u))),
     fastest(recordSize), slowest(recordSize), 
     mostFactors(recordSize), mostUniqueFactors(recordSize) {
     initialize();
 }
 
 StatSet::StatSet(const unsigned long long inputCount) : 
-    count(inputCount), maxN(0ull), recordSize(std::max((unsigned int)log10l(count), 3u)),
+    count(inputCount), maxN(0ull), recordSize(std::min(count, (unsigned long long)std::max((unsigned int)log10l(count), 3u))),
     fastest(recordSize), slowest(recordSize), 
     mostFactors(recordSize), mostUniqueFactors(recordSize) {
     initialize();
@@ -17,24 +17,23 @@ StatSet::StatSet(const unsigned long long inputCount) :
 void StatSet::printout(void) const {
     //stat printout header
     printDivider();
-    std::println("{} factorizations{} calculated in {}.\n", count, maxN ? std::format(" of numbers <= {}", maxN) : "", fullSequenceRunDuration);
+    std::print("{} factorizations{} calculated in {}.\n", count, maxN ? std::format(" of numbers <= {}", maxN) : "", fullSequenceRunDuration);
 
     //info blocks on the fastest and slowest calculation times for factorizations
     //shows calc time, the input, and the factorization itself
     printDivider("Fastest Factorizations Attempted", "Slowest Factorizations Attempted");
-    printRecordLists(fastest, slowest);
-
+    RankingList::printRecordLists(fastest, slowest);
+    
     //as above, for factorizations with the most factors
     printDivider("Factorizations With Most Total Factors", "Factorizations With Most Unique Factors");
-    printRecordLists(mostFactors, mostUniqueFactors, 
+    RankingList::printRecordLists(mostFactors, mostUniqueFactors, 
         [](size_t i, const RankingList& leftList){ return std::format("#{}: {} | {}", i + 1, leftList.viewEntryAt(i).factorization.getFactorCount(), leftList.viewEntryAt(i).calcTime); },
         [](size_t i, const RankingList& rightList){ return std::format("#{}: {} | {}", i + 1, rightList.viewEntryAt(i).factorization.getUniqueFactorCount(), rightList.viewEntryAt(i).calcTime); });
 
-    //string stream used to format info blocks horizontally (to better fit in one screen)
     //various statistical facts regarding calculation times 
     printDivider("Calculation Times");
     std::println("{:{}}{}", 
-        std::format("{}{}", "Q0: ", count ? fastest.viewEntryAt(0).calcTime : std::chrono::duration<long double, std::milli>(0)), miniPanelWidth, 
+        std::format("{}{}", "Q0: ", count ? timesData.front() : std::chrono::duration<long double, std::milli>(0)), miniPanelWidth, 
         std::format("{}{}", "Harmonic Mean:      ", harmonMean));
     std::println("{:{}}{}", 
         std::format("{}{}", "Q1: ", firstQuart), miniPanelWidth, 
@@ -46,8 +45,9 @@ void StatSet::printout(void) const {
         std::format("{}{}", "Q3: ", thirdQuart), miniPanelWidth, 
         std::format("{}{}", "Arithmetic Mean:    ", arithMean));
     std::println("{:{}}{}", 
-        std::format("{}{}", "Q4: ", slowest.viewEntryAt(0).calcTime), miniPanelWidth, 
+        std::format("{}{}", "Q4: ", timesData.back()), miniPanelWidth, 
         std::format("{}{}", "Standard Deviation: ", stdDev));
+    
     //prints an overview of the calculation time distribution
     printDivider("Counts (fastest applicable category only)");
     categories.printout();
@@ -65,26 +65,25 @@ void StatSet::handleNewTime(factorizedNumInfo&& newFactorization) {
 }
 
 void StatSet::completeFinalCalculations(void) {
+    //stop timer
     fullSequenceRunDuration = std::chrono::steady_clock::now() - start;
 
-    //avoid division by 0, as well as attempted access at [-1]
+    //avoid division by 0
     if (!count) return;
 
     //places the collected times in order
     std::sort(timesData.begin(), timesData.end());
 
-    const auto findTimeAt = [this](double pos){ return timesData[(size_t)(pos)] * (1 - (pos - floor(pos))) + timesData[(size_t)(pos + (size_t)(timesData.size() > 1))] * (pos - floor(pos)); };
-    median = findTimeAt((double)(timesData.size() - 1) / 2.);
-    firstQuart = findTimeAt((double)(timesData.size() - 1) / 4.);
-    thirdQuart = findTimeAt(((double)(timesData.size() - 1) * 3. / 4.));
+    //calculates the quartiles
+    firstQuart = getWeightedAverage<std::chrono::duration<long double, std::milli>>((timesData.size() - 1) * .25, timesData);
+    median = getWeightedAverage<std::chrono::duration<long double, std::milli>>((timesData.size() - 1) * .5, timesData);
+    thirdQuart = getWeightedAverage<std::chrono::duration<long double, std::milli>>((timesData.size() - 1) * .75, timesData);
 
-    std::chrono::duration<long double, std::milli> interQuartileSum = timesData.size() % 4 / 4. * (timesData[timesData.size() / 4] + timesData[(timesData.size() - 1) - (timesData.size() / 4)]);
+    //calculates the weight of the values at the ends of the iqr and adds them to the interquartile sum
+    std::chrono::duration<long double, std::milli> interQuartileSum = (timesData.size() % 4) * .25 * (timesData[timesData.size() / 4] + timesData[(timesData.size() - 1) - (timesData.size() / 4)]);
 
-    //corrects special case where count == 1 causes the below to evaluate to -nan
-    //calculates arithmetic mean to be used to find variances
-    std::chrono::duration<long double, std::milli> sumTime(0);
-    for (const std::chrono::duration<long double, std::milli>& time : timesData) sumTime += time;
-    arithMean = sumTime / count;
+    //calculates arithmetic mean ahead of the others in order to find variances
+    arithMean = std::reduce(std::next(timesData.begin()), timesData.end(), timesData.front()) / count;
     
     std::chrono::duration<long double, std::milli> sumReciprocals(0), sumLogs(0), sumSquaredDeviation(0);
     for (const std::chrono::duration<long double, std::milli> time : timesData) {
@@ -109,21 +108,7 @@ void StatSet::initialize() {
     start = std::chrono::steady_clock::now();
 }
 
-void StatSet::printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList) const {
-    printRecordLists(leftRecordList, rightRecordList, 
-        //default format shows rank and calcTime only
-        [](size_t i, const RankingList& leftList){ return std::format("#{}: {}", i + 1, leftList.viewEntryAt(i).calcTime); },
-        [](size_t i, const RankingList& rightList){ return std::format("#{}: {}", i + 1, rightList.viewEntryAt(i).calcTime); });
-}
-
-void StatSet::printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList, std::function<const std::string(size_t index, const RankingList& list)>&& leftInfoFormat, std::function<const std::string(size_t index, const RankingList& list)>&& rightInfoFormat) const {
-    for (size_t i = 0; i < std::min((unsigned long long)recordSize, count); ++i) {
-        std::println("{:{}}{}\n{:{}}{}\n", 
-            //info
-            leftInfoFormat(i, leftRecordList), panelWidth,
-            rightInfoFormat(i, rightRecordList),
-            //factorizations themselves
-            std::format("{} ={}", leftRecordList.viewEntryAt(i).n, leftRecordList.viewEntryAt(i).factorization.asString()), panelWidth,
-            std::format("{} ={}", rightRecordList.viewEntryAt(i).n, rightRecordList.viewEntryAt(i).factorization.asString()));
-    }
+void printDivider(std::string&& leftHeader, std::string&& rightHeader) {
+    static constexpr size_t indent = 3;
+    std::println("\033[1;4;97;53m{:-<{}}{:-<{}}{:-<{}}\033[0m", "", indent, leftHeader, panelWidth, rightHeader, panelWidth - indent);
 }

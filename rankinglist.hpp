@@ -1,6 +1,10 @@
 #pragma once
+
+#include <print>
+#include <functional>
 #include <vector>
 #include "factorization.hpp"
+#include "utils.hpp"
 
 class RankingList {
 public:
@@ -10,6 +14,11 @@ public:
     void checkAndRank(const factorizedNumInfo& newItem);
 
     const factorizedNumInfo& viewEntryAt(size_t idx) const;
+
+    static void printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList);
+    static void printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList, 
+        std::function<const std::string(size_t index, const RankingList& list)>&& leftInfoFormat, 
+        std::function<const std::string(size_t index, const RankingList& list)>&& rightInfoFormat);
 
 protected:
     //should check newItem against the item ranked at idx

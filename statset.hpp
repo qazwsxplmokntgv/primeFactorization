@@ -2,10 +2,9 @@
 
 #include <chrono>
 #include <cmath>
-#include <functional>
+#include <numeric>
 #include <format>
 #include <print>
-#include <string>
 #include <vector>
 #include "rankinglist.hpp"
 #include "timecategories.hpp"
@@ -24,11 +23,6 @@ public:
 
 private:
     void initialize();
-
-    void printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList) const;
-    void printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList, 
-        std::function<const std::string(size_t index, const RankingList& list)>&& leftInfoFormat, 
-        std::function<const std::string(size_t index, const RankingList& list)>&& rightInfoFormat) const;
 
 
     const unsigned long long count, maxN;
@@ -53,3 +47,11 @@ private:
     
     std::vector<std::chrono::duration<long double, std::milli>> timesData;
 };
+
+void printDivider(std::string&& leftHeader = "", std::string&& rightHeader = "");
+
+//accepts a non integer index and calculates a weighted average of the adjacent elements
+template<class T>
+inline T getWeightedAverage(const double pos, const std::vector<T>& sortedList) {
+    return sortedList[(size_t)(pos)] * (1 - (pos - floor(pos))) + sortedList[(size_t)(pos + (size_t)(sortedList.size() > 1))] * (pos - floor(pos));
+}

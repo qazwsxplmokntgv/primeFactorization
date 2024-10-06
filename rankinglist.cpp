@@ -20,7 +20,6 @@ const factorizedNumInfo& RankingList::viewEntryAt(size_t idx) const {
     return rankedItems[idx];
 }
 
-
 bool FastestRankingList::compareAgainst(const factorizedNumInfo& newItem, size_t idx) const {
     return newItem.calcTime < rankedItems[idx].calcTime || rankedItems[idx].calcTime == std::chrono::duration<long double, std::milli>(0);
 }
@@ -41,4 +40,23 @@ bool MostUniqueFactorsRankingList::compareAgainst(const factorizedNumInfo& newIt
         //if tied, tie break with total factor count
         || (newItem.factorization.getUniqueFactorCount() == rankedItems[idx].factorization.getUniqueFactorCount() 
         && newItem.factorization.getFactorCount() > rankedItems[idx].factorization.getFactorCount());;
+}
+
+void RankingList::printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList) {
+    printRecordLists(leftRecordList, rightRecordList, 
+        //default format shows rank and calcTime only
+        [](size_t i, const RankingList& leftList){ return std::format("#{}: {}", i + 1, leftList.viewEntryAt(i).calcTime); },
+        [](size_t i, const RankingList& rightList){ return std::format("#{}: {}", i + 1, rightList.viewEntryAt(i).calcTime); });
+}
+
+void RankingList::printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList, std::function<const std::string(size_t index, const RankingList& list)>&& leftInfoFormat, std::function<const std::string(size_t index, const RankingList& list)>&& rightInfoFormat) {
+    for (size_t i = 0; i < std::min(leftRecordList.maxSize, rightRecordList.maxSize); ++i) {
+        std::println("{:{}}{}\n{:{}}{}\n", 
+            //info
+            leftInfoFormat(i, leftRecordList), panelWidth,
+            rightInfoFormat(i, rightRecordList),
+            //factorizations themselves
+            std::format("{} ={}", leftRecordList.viewEntryAt(i).n, leftRecordList.viewEntryAt(i).factorization.asString()), panelWidth,
+            std::format("{} ={}", rightRecordList.viewEntryAt(i).n, rightRecordList.viewEntryAt(i).factorization.asString()));
+    }
 }
