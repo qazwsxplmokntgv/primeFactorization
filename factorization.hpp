@@ -16,7 +16,6 @@ public:
     
     const uint_fast8_t getFactorCount() const;
     const uint_fast8_t getUniqueFactorCount() const;
-    const uint_fast8_t getHighestFactorExponent() const; 
 
 private:
     //base exponent pair
@@ -33,9 +32,6 @@ private:
     uint_fast8_t factorCount = 0;
 
     std::vector<factor> factors;
-
-    //std::array<factor, maxDistinctFactors> factors;
-    //size_t factorsArrayBack = 0;
 };
 
 //used to store information on noteworthy factorizations for use in concluding statistical printouts
