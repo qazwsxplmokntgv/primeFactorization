@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cmath>
 #include <numeric>
+#include <string>
 #include <format>
 #include <print>
 #include <vector>
@@ -14,19 +15,13 @@
 class StatSet {
 public:
     //inputCount == number of nums whose factorizations will be considered
-    //maxInput == highest possible input
-    StatSet(const unsigned long long inputCount, const unsigned long long maxInput);
     StatSet(const unsigned long long inputCount);
     void printout(void) const;
-    void handleNewTime(factorizedNumInfo&& newFactorization);
+    void handleNewTime(FactorCalculationInfo&& newFactorization);
     void completeFinalCalculations(void);
 
 private:
-    void initialize();
-
-    const unsigned long long count, maxN;
-    const size_t recordSize;
-
+    const unsigned long long inputCount;
     //rank lists 
     FastestRankingList fastest;
     SlowestRankingList slowest;
@@ -40,10 +35,7 @@ private:
     //counts of divisions of calcTimes
     TimeCategories categories;
 
-    //timer from constructor through when complete final calculations is called
-    std::chrono::duration<long double> fullSequenceRunDuration;
-    std::chrono::steady_clock::time_point start;
-    
+    //vector of each individual calculation time
     std::vector<std::chrono::duration<long double, std::milli>> timesData;
 };
 

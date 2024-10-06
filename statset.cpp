@@ -1,24 +1,15 @@
 #include "statset.hpp"
 
-StatSet::StatSet(const unsigned long long inputCount, const unsigned long long maxInput) : 
-    count(inputCount), maxN(maxInput), recordSize(std::min(count, (unsigned long long)std::max((unsigned int)log10l(count), 3u))),
-    fastest(recordSize), slowest(recordSize), 
-    mostFactors(recordSize), mostUniqueFactors(recordSize) {
-    initialize();
+StatSet::StatSet(const unsigned long long inputCount_) : inputCount(inputCount_), 
+    fastest          (std::min(inputCount, (unsigned long long)std::max((unsigned int)log10l(inputCount), 3u))), 
+    slowest          (std::min(inputCount, (unsigned long long)std::max((unsigned int)log10l(inputCount), 3u))), 
+    mostFactors      (std::min(inputCount, (unsigned long long)std::max((unsigned int)log10l(inputCount), 3u))), 
+    mostUniqueFactors(std::min(inputCount, (unsigned long long)std::max((unsigned int)log10l(inputCount), 3u))) {
+    timesData.reserve(inputCount);
 }
 
-StatSet::StatSet(const unsigned long long inputCount) : 
-    count(inputCount), maxN(0ull), recordSize(std::min(count, (unsigned long long)std::max((unsigned int)log10l(count), 3u))),
-    fastest(recordSize), slowest(recordSize), 
-    mostFactors(recordSize), mostUniqueFactors(recordSize) {
-    initialize();
-}
 
 void StatSet::printout(void) const {
-    //stat printout header
-    printDivider();
-    std::print("{} factorizations{} calculated in {}.\n", count, maxN ? std::format(" of numbers <= {}", maxN) : "", fullSequenceRunDuration);
-
     //info blocks on the fastest and slowest calculation times for factorizations
     //shows calc time, the input, and the factorization itself
     printDivider("Fastest Factorizations Attempted", "Slowest Factorizations Attempted");
@@ -33,7 +24,7 @@ void StatSet::printout(void) const {
     //various statistical facts regarding calculation times 
     printDivider("Calculation Times");
     std::println("{:{}}{}", 
-        std::format("{}{}", "Q0: ", count ? timesData.front() : std::chrono::duration<long double, std::milli>(0)), miniPanelWidth, 
+        std::format("{}{}", "Q0: ", inputCount ? timesData.front() : std::chrono::duration<long double, std::milli>(0)), miniPanelWidth, 
         std::format("{}{}", "Harmonic Mean:      ", harmonMean));
     std::println("{:{}}{}", 
         std::format("{}{}", "Q1: ", firstQuart), miniPanelWidth, 
@@ -45,7 +36,7 @@ void StatSet::printout(void) const {
         std::format("{}{}", "Q3: ", thirdQuart), miniPanelWidth, 
         std::format("{}{}", "Arithmetic Mean:    ", arithMean));
     std::println("{:{}}{}", 
-        std::format("{}{}", "Q4: ", timesData.back()), miniPanelWidth, 
+        std::format("{}{}", "Q4: ", inputCount ? timesData.back() : std::chrono::duration<long double, std::milli>(0)), miniPanelWidth, 
         std::format("{}{}", "Standard Deviation: ", stdDev));
     
     //prints an overview of the calculation time distribution
@@ -53,7 +44,7 @@ void StatSet::printout(void) const {
     categories.printout();
 }
 
-void StatSet::handleNewTime(factorizedNumInfo&& newFactorization) {
+void StatSet::handleNewTime(FactorCalculationInfo&& newFactorization) {
     //compares new item against each ranking list, inserting if and when appropriate
     fastest.checkAndRank(newFactorization);
     slowest.checkAndRank(newFactorization);
@@ -65,11 +56,8 @@ void StatSet::handleNewTime(factorizedNumInfo&& newFactorization) {
 }
 
 void StatSet::completeFinalCalculations(void) {
-    //stop timer
-    fullSequenceRunDuration = std::chrono::steady_clock::now() - start;
-
     //avoid division by 0
-    if (!count) return;
+    if (!inputCount) return;
 
     //places the collected times in order
     std::sort(timesData.begin(), timesData.end());
@@ -83,13 +71,13 @@ void StatSet::completeFinalCalculations(void) {
     std::chrono::duration<long double, std::milli> interQuartileSum = (timesData.size() % 4) * .25 * (timesData[timesData.size() / 4] + timesData[(timesData.size() - 1) - (timesData.size() / 4)]);
 
     //calculates arithmetic mean ahead of the others in order to find variances
-    arithMean = std::reduce(std::next(timesData.begin()), timesData.end(), timesData.front()) / count;
+    arithMean = std::reduce(std::next(timesData.begin()), timesData.end(), timesData.front()) / inputCount;
     
     std::chrono::duration<long double, std::milli> sumReciprocals(0), sumLogs(0), sumSquaredDeviation(0);
     for (const std::chrono::duration<long double, std::milli> time : timesData) {
         //categorizes the time
         categories.increment(time.count()); 
-        
+
         //totalling of several sums to later be used in calculating respective means
         sumReciprocals      += std::chrono::duration<long double, std::milli>(1 / time.count());
         sumLogs             += std::chrono::duration<long double, std::milli>(logl(time.count()));
@@ -99,15 +87,10 @@ void StatSet::completeFinalCalculations(void) {
         if (time.count() > firstQuart.count() && time.count() < thirdQuart.count()) interQuartileSum += time;
     }
     //calculates final values of means (besides arithmetic, already calculated in preparation for stdDev calculation), as well as stdDev
-    harmonMean = std::chrono::duration<long double, std::milli>(1 / (sumReciprocals / count).count());
-    geoMean =    std::chrono::duration<long double, std::milli>(expl(sumLogs.count() / count));
-    iqMean =     std::chrono::duration<long double, std::milli>(interQuartileSum * 2. / count);
-    stdDev =     std::chrono::duration<long double, std::milli>(sqrtl(sumSquaredDeviation.count() / count));
-}
-
-void StatSet::initialize() {
-    timesData.reserve(count);
-    start = std::chrono::steady_clock::now();
+    harmonMean = std::chrono::duration<long double, std::milli>(1 / (sumReciprocals / inputCount).count());
+    geoMean =    std::chrono::duration<long double, std::milli>(expl(sumLogs.count() / inputCount));
+    iqMean =     std::chrono::duration<long double, std::milli>(interQuartileSum * 2. / inputCount);
+    stdDev =     std::chrono::duration<long double, std::milli>(sqrtl(sumSquaredDeviation.count() / inputCount));
 }
 
 void printDivider(std::string&& leftHeader, std::string&& rightHeader) {
