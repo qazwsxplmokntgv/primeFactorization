@@ -49,12 +49,12 @@ void FactorizationCalculator::promptForSettings(void) {
 
     //prompts user for mode relevant settings
     if (mode == InputMode::MANUAL || mode == InputMode::RANDOM)
-        inputCount = promptIndividualSetting<unsigned long long>("Count: ");
+        inputCount = promptIndividualSetting<uint64_t>("Count: ");
     if (mode == InputMode::RANDOM || mode == InputMode::RANGE) {
-        minN = promptIndividualSetting<unsigned long long>("Lower Bound: ");
-        maxN = promptIndividualSetting<unsigned long long>("Upper Bound (0 for max): ");
+        minN = promptIndividualSetting<uint64_t>("Lower Bound: ");
+        maxN = promptIndividualSetting<uint64_t>("Upper Bound (0 for max): ");
         reportIndividualFactorizations = 'y' == std::tolower(promptIndividualSetting<char>("Report Individual Factorizations? (y/n): ", [](char input){ return tolower(input) == 'y' || tolower(input) == 'n'; }));
-        if (!maxN) maxN = std::numeric_limits<unsigned long long>::max();
+        if (!maxN) maxN = std::numeric_limits<uint64_t>::max();
     }
 
     //TODO allow settings to be saved per mode here
@@ -69,7 +69,7 @@ void FactorizationCalculator::promptForSettings(void) {
 }
 
 void FactorizationCalculator::manualInputTest() {
-    for (unsigned long long i { 1 }; i <= inputCount; ++i) {
+    for (uint64_t i { 1 }; i <= inputCount; ++i) {
         FactorCalculationInfo infoSet; 
 
         std::print("({}/{}) Num: ", i, inputCount);
@@ -89,9 +89,9 @@ void FactorizationCalculator::manualInputTest() {
 void FactorizationCalculator::randomInputTest() {
     //set up prng machine
     std::mt19937 gen(std::random_device{}());
-    std::uniform_int_distribution<unsigned long long> flatDistr(0, maxN);
+    std::uniform_int_distribution<uint64_t> flatDistr(0, maxN);
 
-    for (unsigned long long i { 1 }; i <= inputCount; ++i) {
+    for (uint64_t i { 1 }; i <= inputCount; ++i) {
         //generate a number
         FactorCalculationInfo infoSet { flatDistr(gen) };
 
@@ -111,7 +111,7 @@ void FactorizationCalculator::randomInputTest() {
 
 void FactorizationCalculator::rangeBasedInputTest() {
 
-    for (unsigned long long i { 1 }; i <= inputCount; ++i) {
+    for (uint64_t i { 1 }; i <= inputCount; ++i) {
         //generate a number
         FactorCalculationInfo infoSet { (i - 1) + minN };
 

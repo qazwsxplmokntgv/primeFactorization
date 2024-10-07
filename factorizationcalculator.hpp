@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <chrono>
 #include <functional>
 #include <limits>
@@ -11,7 +12,7 @@
 
 #include "statset.hpp"
 #include "primes.hpp"
-#include "factorcalculationinfo.hpp"
+#include "calculationinfo.hpp"
 
 static constexpr int modeCount = 3;
 
@@ -41,7 +42,7 @@ private:
     void rangeBasedInputTest();
 
     InputMode mode;
-    unsigned long long inputCount, minN, maxN;
+    uint64_t inputCount, minN, maxN;
     bool reportIndividualFactorizations;
     
     //collection of stats from upcoming calculation time data

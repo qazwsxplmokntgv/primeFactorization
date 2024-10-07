@@ -3,7 +3,7 @@
 #include <print>
 #include <functional>
 #include <vector>
-#include "factorcalculationinfo.hpp"
+#include "calculationinfo.hpp"
 #include "utils.hpp"
 
 class RankingList {

@@ -8,7 +8,7 @@
 class Factorization {
 public:
     Factorization();
-    void addNewFactor(const unsigned long long base, const uint_fast8_t exp);
+    void addNewFactor(const uint64_t base, const uint_fast8_t exp);
     
     //takes a prime factorization as returned by primeFactorization() and converts it to a string
     std::string asString() const; 
@@ -19,9 +19,9 @@ public:
 private:
     //base exponent pair
     struct factor {
-        factor(unsigned long long base_, uint_fast8_t exp_) : base(base_), exp(exp_) {}
+        factor(uint64_t base_, uint_fast8_t exp_) : base(base_), exp(exp_) {}
 
-        unsigned long long base;
+        uint64_t base;
         //64 bit numbers cannot have factors with exp greater than floor(log2(2^64 - 1)) == 63
         //therefore this is guranteed to be sufficient theoretically through a 256 bit num
         uint_fast8_t exp; 

@@ -1,10 +1,10 @@
 #include "statset.hpp"
 
-StatSet::StatSet(const unsigned long long inputCount_) : inputCount(inputCount_), 
-    fastest          (std::min(inputCount, (unsigned long long)std::max((unsigned int)log10l(inputCount), 3u))), 
-    slowest          (std::min(inputCount, (unsigned long long)std::max((unsigned int)log10l(inputCount), 3u))), 
-    mostFactors      (std::min(inputCount, (unsigned long long)std::max((unsigned int)log10l(inputCount), 3u))), 
-    mostUniqueFactors(std::min(inputCount, (unsigned long long)std::max((unsigned int)log10l(inputCount), 3u))) {
+StatSet::StatSet(const uint64_t inputCount_) : inputCount(inputCount_), 
+    fastest          (std::min(inputCount, (uint64_t)std::max((unsigned int)log10l(inputCount), 3u))), 
+    slowest          (std::min(inputCount, (uint64_t)std::max((unsigned int)log10l(inputCount), 3u))), 
+    mostFactors      (std::min(inputCount, (uint64_t)std::max((unsigned int)log10l(inputCount), 3u))), 
+    mostUniqueFactors(std::min(inputCount, (uint64_t)std::max((unsigned int)log10l(inputCount), 3u))) {
     timesData.reserve(inputCount);
 }
 

@@ -1,6 +1,6 @@
 #include "primes.hpp"
 
-Factorization primes::primeFactorization(unsigned long long n) {
+Factorization primes::primeFactorization(uint64_t n) {
     Factorization foundFactors;
     //counts powers of discovered prime factors
     //doubles as an flag of n's value being lowered since previous isPrime(n...) check, which results from said powers being factored out
@@ -15,7 +15,7 @@ Factorization primes::primeFactorization(unsigned long long n) {
     exp = 1;
     //sweeps across all odd primes until reaching the value of each of n's prime factors,
     //possibly excluding the greatest prime factor iff the square of said factor does not divide n
-    unsigned long long divisor { 1 };
+    uint64_t divisor { 1 };
     while (n > 1ull) {
         //checking if the remaining n is prime
         if (exp) { //only rechecks if n has changed since last check 
@@ -41,13 +41,13 @@ Factorization primes::primeFactorization(unsigned long long n) {
     return foundFactors;
 }
 
-inline bool primes::isPrime(const unsigned long long n) {
+inline bool primes::isPrime(const uint64_t n) {
     return isPrime(n, 5);
 }
 
 //O(sqrt(n))
 //Ω(1)
-inline bool primes::isPrime(const unsigned long long n, const unsigned long potentialPrimeFactorFloor) {
+inline bool primes::isPrime(const uint64_t n, const unsigned long potentialPrimeFactorFloor) {
     //this switch is slightly faster than any obvious bitwise approaches tested so far, which all need to first check (n < 4)
     switch (n) {
         case 0ull: 

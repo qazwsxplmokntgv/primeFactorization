@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <chrono>
 #include <cmath>
 #include <numeric>
@@ -15,13 +16,13 @@
 class StatSet {
 public:
     //inputCount == number of nums whose factorizations will be considered
-    StatSet(const unsigned long long inputCount);
+    StatSet(const uint64_t inputCount);
     void printout(void) const;
     void handleNewTime(FactorCalculationInfo&& newFactorization);
     void completeFinalCalculations(void);
 
 private:
-    const unsigned long long inputCount;
+    const uint64_t inputCount;
     //rank lists 
     FastestRankingList fastest;
     SlowestRankingList slowest;

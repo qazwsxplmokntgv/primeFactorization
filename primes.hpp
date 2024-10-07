@@ -7,10 +7,9 @@
 
 namespace primes {
     //returns a map of prime factors of n and their respective powers in the form key == base, val == power
-    Factorization primeFactorization(unsigned long long n);
+    Factorization primeFactorization(uint64_t n);
 
-    //returns whether n is prime or not
-    inline bool isPrime(const unsigned long long n);
+    inline bool isPrime(const uint64_t n);
     //if n is known to have no factors less than a certain number, that number can be passed in as the potentialFactorFloor
-    inline bool isPrime(const unsigned long long n, const unsigned long potentialPrimeFactorFloor);
+    inline bool isPrime(const uint64_t n, const unsigned long potentialPrimeFactorFloor);
 } 

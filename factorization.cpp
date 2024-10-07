@@ -7,7 +7,7 @@ Factorization::Factorization() {
     factors.reserve(11);
 }
 
-void Factorization::addNewFactor(const unsigned long long base, const uint_fast8_t exp) {
+void Factorization::addNewFactor(const uint64_t base, const uint_fast8_t exp) {
     factorCount += exp; //add to count of total factors
     factors.emplace_back(base, exp); //append to the end of the list
 }
