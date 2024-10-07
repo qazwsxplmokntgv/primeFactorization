@@ -34,8 +34,8 @@ void FactorizationCalculator::run(void) {
     stats->completeFinalCalculations();
     //stat printout header
     printDivider();
-    //if maxN was unset (e.g. in manual mode), omit that information
-    std::print("{} factorizations{} calculated in {}.\n", inputCount, maxN ? std::format(" of numbers <= {}", maxN) : "", executionTime);
+    //if minN/maxN were unset/irrelevant (e.g. in manual mode), omit that information
+    std::print("{} factorizations{} calculated in {}.\n", inputCount, maxN ? std::format(" of numbers{} <= {}", (minN ? std::format(" >= {} and", minN) : ""), maxN) : "", executionTime);
     
     stats->printout();
 }
@@ -50,8 +50,9 @@ void FactorizationCalculator::promptForSettings(void) {
     //prompts user for mode relevant settings
     if (mode == InputMode::MANUAL || mode == InputMode::RANDOM)
         inputCount = promptIndividualSetting<uint64_t>("Count: ");
+    if (mode == InputMode::RANGE) 
+        minN = promptIndividualSetting<uint64_t>("Lower Bound: "); //while applicable to random, generally found to be less useful than annoying
     if (mode == InputMode::RANDOM || mode == InputMode::RANGE) {
-        minN = promptIndividualSetting<uint64_t>("Lower Bound: ");
         maxN = promptIndividualSetting<uint64_t>("Upper Bound (0 for max): ");
         reportIndividualFactorizations = 'y' == std::tolower(promptIndividualSetting<char>("Report Individual Factorizations? (y/n): ", [](char input){ return tolower(input) == 'y' || tolower(input) == 'n'; }));
         if (!maxN) maxN = std::numeric_limits<uint64_t>::max();
@@ -60,12 +61,14 @@ void FactorizationCalculator::promptForSettings(void) {
     //TODO allow settings to be saved per mode here
 
     //defaults or extrapolates remaining settings
-    if (mode == InputMode::RANGE) 
-        inputCount = (maxN - minN) + 1;
     if (mode == InputMode::MANUAL) {
         minN = maxN = 0; //indicates unset
         reportIndividualFactorizations = true;
     }
+    if (mode == InputMode::RANDOM)
+        minN = 0;
+    if (mode == InputMode::RANGE) 
+        inputCount = (maxN - minN) + 1;
 }
 
 void FactorizationCalculator::manualInputTest() {
@@ -97,7 +100,7 @@ void FactorizationCalculator::randomInputTest() {
 
         if (reportIndividualFactorizations) //display the number generated
             std::println("({}/{}): {}", i, inputCount, infoSet.n);
-        else if (100 * i / inputCount != 100 * (i - 1) / inputCount || i == 1) //display progress through count as a % 
+        else if ((100 * i / inputCount != 100 * (i - 1) / inputCount) || i == 1) //display progress through count as a % 
             std::println("\033[A\33[2K\r{}%", 100 * i / inputCount);
 
         infoSet.calculateAndTime();
@@ -110,7 +113,6 @@ void FactorizationCalculator::randomInputTest() {
 }
 
 void FactorizationCalculator::rangeBasedInputTest() {
-
     for (uint64_t i { 1 }; i <= inputCount; ++i) {
         //generate a number
         FactorCalculationInfo infoSet { (i - 1) + minN };
