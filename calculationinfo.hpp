@@ -7,7 +7,7 @@
 
 //used to store information on noteworthy factorizations for use in concluding statistical printouts
 struct FactorCalculationInfo {
-    FactorCalculationInfo(unsigned long long n_ = 0) : n(n_) {} 
+    FactorCalculationInfo(uint64_t n_ = 0) : n(n_) {} 
 
     //precondition: infoset.n has the correct value value
     //postcondition: all fields of infoSet are correctly filled
@@ -16,7 +16,7 @@ struct FactorCalculationInfo {
     //prints factorization and calcTime
     void printPostCalcInfo(void) const;
 
-    unsigned long long n;
+    uint64_t n;
     Factorization factorization;
     std::chrono::duration<long double, std::milli> calcTime;
 };

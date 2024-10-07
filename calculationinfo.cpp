@@ -1,4 +1,4 @@
-#include "factorcalculationinfo.hpp"
+#include "calculationinfo.hpp"
 
 void FactorCalculationInfo::calculateAndTime(void) {
    //start timer
