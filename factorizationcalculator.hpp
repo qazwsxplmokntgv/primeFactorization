@@ -9,7 +9,6 @@
 #include <string>
 #include <random>
 #include <optional>
-
 #include "statset.hpp"
 #include "primes.hpp"
 #include "calculationinfo.hpp"

@@ -31,7 +31,7 @@ private:
 
     //statistical facts
     std::chrono::duration<long double, std::milli> firstQuart, median, thirdQuart;
-    std::chrono::duration<long double, std::milli> arithMean, harmonMean, geoMean, stdDev, iqMean;
+    std::chrono::duration<long double, std::milli> harmonMean, geoMean, iqMean, arithMean, stdDev;
     
     //counts of divisions of calcTimes
     TimeCategories categories;

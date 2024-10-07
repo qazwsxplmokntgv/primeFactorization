@@ -68,7 +68,10 @@ void StatSet::completeFinalCalculations(void) {
     thirdQuart = getWeightedAverage<std::chrono::duration<long double, std::milli>>((timesData.size() - 1) * .75, timesData);
 
     //calculates the weight of the values at the ends of the iqr and adds them to the interquartile sum
-    std::chrono::duration<long double, std::milli> interQuartileSum = (timesData.size() % 4) * .25 * (timesData[timesData.size() / 4] + timesData[(timesData.size() - 1) - (timesData.size() / 4)]);
+    std::chrono::duration<long double, std::milli> interQuartileSum = 
+        (.25 * (timesData.size() % 4)) *    //weight of the quartile edge elements ranges from 0-.75
+        (timesData[timesData.size() / 4] +  //lower quartile edge element
+        timesData[(timesData.size() - 1) - (timesData.size() / 4)]); //upper quartile edge element
 
     //calculates arithmetic mean ahead of the others in order to find variances
     arithMean = std::reduce(std::next(timesData.begin()), timesData.end(), timesData.front()) / inputCount;
