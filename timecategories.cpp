@@ -1,10 +1,9 @@
 #include "timecategories.hpp"
 
-void TimeCategories::increment(const long double timeMs) {
-    //increments the appropriate counter for the calculation time category
-    for (auto i = subdivisions.rbegin(); i != subdivisions.rend(); ++i) {
-        if (timeMs >= i->floorMilliEquivalent) { 
-            ++(i->count);
+void TimeCategories::incrementAppropriateCategory(const long double timeMs) {
+    for (subdivision& sub : subdivisions) {
+        if (timeMs < sub.milliEquiv) { 
+            ++sub.count;
             break;
         }
     }
