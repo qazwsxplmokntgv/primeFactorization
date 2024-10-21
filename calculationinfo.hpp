@@ -8,9 +8,9 @@
 
 //used to store information on noteworthy factorizations for use in concluding statistical printouts
 struct FactorCalculationInfo {
-    FactorCalculationInfo(uint64_t n_ = 0) : n(n_) {} 
+    FactorCalculationInfo(uint64_t n_) : n(n_) {} 
 
-    //precondition: infoset.n has the correct value value
+    //precondition: infoset.n is defined
     //postcondition: all fields of infoSet are correctly filled
     void calculateAndTime(void);
 
