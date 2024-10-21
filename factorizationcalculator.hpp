@@ -9,6 +9,7 @@
 #include <string>
 #include <random>
 #include <optional>
+#include <unordered_set>
 #include "statset.hpp"
 #include "primes.hpp"
 #include "calculationinfo.hpp"
@@ -45,12 +46,13 @@ private:
     bool reportIndividualFactorizations;
     
     //collection of stats from upcoming calculation time data
-    //stores a flexible number of records in a few categories based on the log of the count, with a minimum of 3
+    //stores a flexible number of records in a few timeCategories based on the log of the count, with a minimum of 3
     //optional to postpone construction until settings have been set
     std::optional<StatSet> stats;
 };
 
 //accept any valid input that can be stored in type T unless otherwise specified
+//acceptCondition must evalutate true for the input to be accepted
 template<typename T>
 inline T promptIndividualSetting(std::string&& prompt, const std::function<bool(T)> acceptCondition = [](T setting){ return true; }) {
     T setting;
@@ -64,3 +66,6 @@ inline T promptIndividualSetting(std::string&& prompt, const std::function<bool(
     } while (!acceptCondition(setting));
     return setting;
 }
+
+//n assumed to start at 1
+inline bool yieldsNewIntegerPercentage(uint64_t n, uint64_t total);
