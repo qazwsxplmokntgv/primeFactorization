@@ -1,64 +1,84 @@
 #include "rankinglist.hpp"
 
-RankingList::RankingList(size_t maxSize_) : maxSize(maxSize_) {
-    rankedItems.resize(maxSize);
-}
+RankingList::RankingList(size_t maxSize_) : maxSize(maxSize_) {}
 
-void RankingList::checkAndRank(const FactorCalculationInfo& newItem) {
-    //begin by referring to the index of the worst ranked item
-    size_t i = rankedItems.size() - 1;
-    //if newItem beats the worst ranked item,
-    if (compareAgainst(newItem, i)) {
-        //advance i down to the idx of the best item newItem beats
-        while (i > 0 && compareAgainst(newItem, i - 1)) --i;
-        //shift all items from the end through i inclusive back by 1
-        for (size_t j = rankedItems.size() - 1; j > i; --j) rankedItems[j] = rankedItems[j - 1];
-        //insert newItem into the opened spot
-        rankedItems[i] = newItem;
+void RankingList::rankIfApplicable(const FactorCalculationInfo& newItem) {
+    auto rankedItem { rankedItems.cend() };
+    //to prevent checks against empty lists
+    if (!rankedItems.empty()) {
+        //if newItem ranks below the worst already ranked item, newItem can either be simply pushed back or discarded depending on room
+        if (!outranksNthItem(newItem, std::prev(rankedItem))) {
+            if (!isFilled()) 
+                rankedItems.push_back(newItem);
+            return;
+        }
+        //prevents wasteful double checking against the worst ranked item
+        else std::advance(rankedItem, -1);
     }
+
+    //advances rankedItem to the highest ranked item outranked by newItem
+    for (; rankedItem != rankedItems.cbegin() && outranksNthItem(newItem, std::prev(rankedItem)); std::advance(rankedItem, -1));
+
+    rankedItems.insert(rankedItem, newItem);
+
+    //if an entry falls out of the rankings, it can be discarded
+    if (rankedItems.size() > maxSize) rankedItems.pop_back();
 }
 
-const FactorCalculationInfo& RankingList::viewEntryAt(size_t idx) const {
-    return rankedItems[idx];
+std::list<FactorCalculationInfo>::const_iterator RankingList::cbegin() const {
+    return rankedItems.cbegin();
 }
 
-bool FastestRankingList::compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const {
-    return newItem.calcTime < rankedItems[idx].calcTime || rankedItems[idx].calcTime == std::chrono::duration<long double, std::milli>(0);
+std::list<FactorCalculationInfo>::const_iterator RankingList::cend() const {
+    return rankedItems.cend();
 }
 
-bool SlowestRankingList::compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const {
-    return newItem.calcTime > rankedItems[idx].calcTime;
+bool FastestRankingList::outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const {
+    return newItem.calcTime < pos->calcTime;
 }
 
-bool MostTotalFactorsRankingList::compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const {
-    return newItem.factorization.getFactorCount() > rankedItems[idx].factorization.getFactorCount()  
+bool SlowestRankingList::outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const {
+    return newItem.calcTime > pos->calcTime;
+}
+
+bool MostTotalFactorsRankingList::outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const {
+    return newItem.factorization.getFactorCount() > pos->factorization.getFactorCount()  
         //if tied, tie break with unique factor count
-        || (newItem.factorization.getFactorCount() == rankedItems[idx].factorization.getFactorCount() 
-        && newItem.factorization.getUniqueFactorCount() > rankedItems[idx].factorization.getUniqueFactorCount());
+        || (newItem.factorization.getFactorCount() == pos->factorization.getFactorCount() 
+        && newItem.factorization.getUniqueFactorCount() > pos->factorization.getUniqueFactorCount());
 }
 
-bool MostUniqueFactorsRankingList::compareAgainst(const FactorCalculationInfo& newItem, size_t idx) const {
-    return newItem.factorization.getUniqueFactorCount() > rankedItems[idx].factorization.getUniqueFactorCount()
+bool MostUniqueFactorsRankingList::outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const {
+    return newItem.factorization.getUniqueFactorCount() > pos->factorization.getUniqueFactorCount()
         //if tied, tie break with total factor count
-        || (newItem.factorization.getUniqueFactorCount() == rankedItems[idx].factorization.getUniqueFactorCount() 
-        && newItem.factorization.getFactorCount() > rankedItems[idx].factorization.getFactorCount());;
+        || (newItem.factorization.getUniqueFactorCount() == pos->factorization.getUniqueFactorCount() 
+        && newItem.factorization.getFactorCount() > pos->factorization.getFactorCount());
 }
 
 void RankingList::printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList) {
     printRecordLists(leftRecordList, rightRecordList, 
         //default format shows rank and calcTime only
-        [](size_t i, const RankingList& leftList){ return std::format("#{}: {}", i + 1, leftList.viewEntryAt(i).calcTime); },
-        [](size_t i, const RankingList& rightList){ return std::format("#{}: {}", i + 1, rightList.viewEntryAt(i).calcTime); });
+        [](size_t i, const RankingList& leftList){ return std::format("#{}: {}", i + 1, std::next(leftList.cbegin(), i)->calcTime); },
+        [](size_t i, const RankingList& rightList){ return std::format("#{}: {}", i + 1, std::next(rightList.cbegin(), i)->calcTime); });
 }
 
 void RankingList::printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList, std::function<const std::string(size_t index, const RankingList& list)>&& leftInfoFormat, std::function<const std::string(size_t index, const RankingList& list)>&& rightInfoFormat) {
-    for (size_t i = 0; i < std::min(leftRecordList.maxSize, rightRecordList.maxSize); ++i) {
+    std::list<FactorCalculationInfo>::const_iterator leftIt = leftRecordList.cbegin(), rightIt = rightRecordList.cbegin();
+    for (unsigned i = 0; leftIt != leftRecordList.cend() && rightIt != rightRecordList.cend(); ++i) {
         std::println("{:{}}{}\n{:{}}{}\n", 
-            //info
+            //first line of info as specified in parameters
             leftInfoFormat(i, leftRecordList), panelWidth,
             rightInfoFormat(i, rightRecordList),
-            //factorizations themselves
-            std::format("{} ={}", leftRecordList.viewEntryAt(i).n, leftRecordList.viewEntryAt(i).factorization.asString()), panelWidth,
-            std::format("{} ={}", rightRecordList.viewEntryAt(i).n, rightRecordList.viewEntryAt(i).factorization.asString()));
+            //second line is always n == factorization of n, doesn't need customization info 
+            std::format("{} ={}", leftIt->n, leftIt->factorization.asString()), panelWidth,
+            std::format("{} ={}", rightIt->n, rightIt->factorization.asString())
+        );
+        
+        std::advance(leftIt, 1);
+        std::advance(rightIt, 1);
     }
+}
+
+bool RankingList::isFilled() const {
+    return rankedItems.size() == maxSize;
 }
