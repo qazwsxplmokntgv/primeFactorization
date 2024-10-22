@@ -1,9 +1,10 @@
 #pragma once
 
+#include <algorithm>
 #include <print>
 #include <functional>
 #include <list>
-#include <vector>
+#include <set>
 #include "calculationinfo.hpp"
 #include "utils.hpp"
 
@@ -25,7 +26,7 @@ public:
 protected:
     //should check newItem against the item ranked at pos
     //if true, newItem outranks the existing item
-    virtual bool outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const = 0;
+    virtual bool outranksNthItem(const FactorCalculationInfo& newItem, const FactorCalculationInfo& existingItem) const = 0;
 
     bool isFilled() const;
     
@@ -37,26 +38,26 @@ class FastestRankingList : public RankingList {
 public:
     FastestRankingList(size_t maxSize) : RankingList(maxSize) {}
 private:
-    bool outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const;
+    bool outranksNthItem(const FactorCalculationInfo& newItem, const FactorCalculationInfo& existingItem) const;
 };
 
 class SlowestRankingList : public RankingList {
 public:
     SlowestRankingList(size_t maxSize) : RankingList(maxSize) {}
 private:
-    bool outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const;
+    bool outranksNthItem(const FactorCalculationInfo& newItem, const FactorCalculationInfo& existingItem) const;
 };
 
 class MostTotalFactorsRankingList : public RankingList {
 public:
     MostTotalFactorsRankingList(size_t maxSize) : RankingList(maxSize) {}
 private:
-    bool outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const;
+    bool outranksNthItem(const FactorCalculationInfo& newItem, const FactorCalculationInfo& existingItem) const;
 };
 
 class MostUniqueFactorsRankingList : public RankingList {
 public:
     MostUniqueFactorsRankingList(size_t maxSize) : RankingList(maxSize) {}
 private:
-    bool outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const;
+    bool outranksNthItem(const FactorCalculationInfo& newItem, const FactorCalculationInfo& existingItem) const;
 };

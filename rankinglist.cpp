@@ -7,9 +7,8 @@ void RankingList::rankIfApplicable(const FactorCalculationInfo& newItem) {
     //to prevent checks against empty lists
     if (!rankedItems.empty()) {
         //if newItem ranks below the worst already ranked item, newItem can either be simply pushed back or discarded depending on room
-        if (!outranksNthItem(newItem, std::prev(rankedItem))) {
-            if (!isFilled()) 
-                rankedItems.push_back(newItem);
+        if (!outranksNthItem(newItem, *std::prev(rankedItem))) {
+            if (!isFilled()) rankedItems.push_back(newItem);
             return;
         }
         //prevents wasteful double checking against the worst ranked item
@@ -17,7 +16,7 @@ void RankingList::rankIfApplicable(const FactorCalculationInfo& newItem) {
     }
 
     //advances rankedItem to the highest ranked item outranked by newItem
-    for (; rankedItem != rankedItems.cbegin() && outranksNthItem(newItem, std::prev(rankedItem)); std::advance(rankedItem, -1));
+    for (; rankedItem != rankedItems.cbegin() && outranksNthItem(newItem, *std::prev(rankedItem)); std::advance(rankedItem, -1));
 
     rankedItems.insert(rankedItem, newItem);
 
@@ -33,26 +32,26 @@ std::list<FactorCalculationInfo>::const_iterator RankingList::cend() const {
     return rankedItems.cend();
 }
 
-bool FastestRankingList::outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const {
-    return newItem.calcTime < pos->calcTime;
+bool FastestRankingList::outranksNthItem(const FactorCalculationInfo& newItem, const FactorCalculationInfo& existingItem) const {
+    return newItem.calcTime < existingItem.calcTime;
 }
 
-bool SlowestRankingList::outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const {
-    return newItem.calcTime > pos->calcTime;
+bool SlowestRankingList::outranksNthItem(const FactorCalculationInfo& newItem, const FactorCalculationInfo& existingItem) const {
+    return newItem.calcTime > existingItem.calcTime;
 }
 
-bool MostTotalFactorsRankingList::outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const {
-    return newItem.factorization.getFactorCount() > pos->factorization.getFactorCount()  
+bool MostTotalFactorsRankingList::outranksNthItem(const FactorCalculationInfo& newItem, const FactorCalculationInfo& existingItem) const {
+    return newItem.factorization.getFactorCount() > existingItem.factorization.getFactorCount()  
         //if tied, tie break with unique factor count
-        || (newItem.factorization.getFactorCount() == pos->factorization.getFactorCount() 
-        && newItem.factorization.getUniqueFactorCount() > pos->factorization.getUniqueFactorCount());
+        || (newItem.factorization.getFactorCount() == existingItem.factorization.getFactorCount() 
+        && newItem.factorization.getUniqueFactorCount() > existingItem.factorization.getUniqueFactorCount());
 }
 
-bool MostUniqueFactorsRankingList::outranksNthItem(const FactorCalculationInfo& newItem, std::list<FactorCalculationInfo>::const_iterator pos) const {
-    return newItem.factorization.getUniqueFactorCount() > pos->factorization.getUniqueFactorCount()
+bool MostUniqueFactorsRankingList::outranksNthItem(const FactorCalculationInfo& newItem, const FactorCalculationInfo& existingItem) const {
+    return newItem.factorization.getUniqueFactorCount() > existingItem.factorization.getUniqueFactorCount()
         //if tied, tie break with total factor count
-        || (newItem.factorization.getUniqueFactorCount() == pos->factorization.getUniqueFactorCount() 
-        && newItem.factorization.getFactorCount() > pos->factorization.getFactorCount());
+        || (newItem.factorization.getUniqueFactorCount() == existingItem.factorization.getUniqueFactorCount() 
+        && newItem.factorization.getFactorCount() > existingItem.factorization.getFactorCount());
 }
 
 void RankingList::printRecordLists(const RankingList& leftRecordList, const RankingList& rightRecordList) {
