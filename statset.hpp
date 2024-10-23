@@ -27,10 +27,10 @@ public:
 private:
     const size_t inputCount;
     //rank lists 
-    FastestRankingList fastest;
-    SlowestRankingList slowest;
-    MostTotalFactorsRankingList mostFactors;
-    MostUniqueFactorsRankingList mostUniqueFactors;
+    RankingList<fastestComparator> fastest;
+    RankingList<slowestComparator> slowest;
+    RankingList<totalFactorsComparator> mostFactors;
+    RankingList<uniqueFactorsComparator> mostUniqueFactors;
 
     //statistical facts
     std::chrono::duration<long double, std::milli> firstQuart, median, thirdQuart;

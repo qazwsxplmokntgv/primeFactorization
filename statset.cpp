@@ -14,13 +14,13 @@ void StatSet::printout(void) const {
     //info blocks on the fastest and slowest calculation times for factorizations
     //shows calc time, the input, and the factorization itself
     printDivider("Fastest Factorizations Attempted", "Slowest Factorizations Attempted");
-    RankingList::printRecordLists(fastest, slowest);
+    printRecordLists<fastestComparator, slowestComparator>(fastest, slowest);
     
     //same as above, for factorizations with the most factors
     printDivider("Factorizations With Most Total Factors", "Factorizations With Most Unique Factors");
-    RankingList::printRecordLists(mostFactors, mostUniqueFactors, 
-        [](size_t i, const RankingList& leftList ){ return std::format("#{}: {} | {}", i + 1, std::next(leftList.cbegin(),  i)->factorization.getFactorCount(), std::next(leftList.cbegin(), i)->calcTime); },
-        [](size_t i, const RankingList& rightList){ return std::format("#{}: {} | {}", i + 1, std::next(rightList.cbegin(), i)->factorization.getUniqueFactorCount(), std::next(rightList.cbegin(), i)->calcTime); });
+    printRecordLists<totalFactorsComparator, uniqueFactorsComparator>(mostFactors, mostUniqueFactors, 
+        [](size_t i, const RankingList<totalFactorsComparator>& leftList ){ return std::format("#{}: {} | {}", i + 1, std::next(leftList.cbegin(),  i)->factorization.getFactorCount(), std::next(leftList.cbegin(), i)->calcTime); },
+        [](size_t i, const RankingList<uniqueFactorsComparator>& rightList){ return std::format("#{}: {} | {}", i + 1, std::next(rightList.cbegin(), i)->factorization.getUniqueFactorCount(), std::next(rightList.cbegin(), i)->calcTime); });
 
     //various statistical facts regarding calculation times 
     printDivider("Calculation Times");
