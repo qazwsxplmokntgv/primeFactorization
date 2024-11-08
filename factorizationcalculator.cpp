@@ -11,7 +11,7 @@ FactorizationCalculator::FactorizationCalculator() {
 void FactorizationCalculator::run(void) {
     std::println("\n\n");
 
-    auto start = std::chrono::steady_clock::now();
+    auto start { std::chrono::steady_clock::now() };
 
     switch (mode) {
     case InputMode::MANUAL:
@@ -25,7 +25,7 @@ void FactorizationCalculator::run(void) {
         break;
     }
 
-    std::chrono::duration<long double> executionTime = std::chrono::steady_clock::now() - start;
+    std::chrono::duration<long double> executionTime { std::chrono::steady_clock::now() - start };
 
     stats->completeFinalCalculations();
     //stat printout header
@@ -34,6 +34,9 @@ void FactorizationCalculator::run(void) {
     std::print("{} factorizations{} calculated in {}.\n", inputCount, maxN ? std::format(" of numbers{} <= {}", (minN ? std::format(" >= {} and", minN) : ""), maxN) : "", executionTime);
     
     stats->printout();
+    FILE* resultsFile = std::fopen("results.ansi", "w");
+    stats->printout(resultsFile);
+    fclose(resultsFile);
 }
 
 void FactorizationCalculator::promptForMode(void) {
@@ -76,12 +79,16 @@ void FactorizationCalculator::manualInputTest() {
         infoSet.calculateAndTime();
         infoSet.printPostCalcInfo();
 
-        stats->handleNewTime(std::move(infoSet));
+        stats->handleNewFactorizationData(std::move(infoSet));
     }
 }
 
 void FactorizationCalculator::randomInputTest() {
     std::mt19937 gen(std::random_device{}());
+    #ifdef DERANDOMIZE 
+    gen.seed(0); 
+    asm(int 3);
+    #endif
     std::uniform_int_distribution<uint64_t> flatDistr(0, maxN);
 
     for (uint64_t i { 1 }; i <= inputCount; ++i) {
@@ -99,7 +106,7 @@ void FactorizationCalculator::randomInputTest() {
 
         if (reportIndividualFactorizations) infoSet.printPostCalcInfo();
 
-        stats->handleNewTime(std::move(infoSet));
+        stats->handleNewFactorizationData(infoSet);
     }
 }
 
@@ -120,7 +127,7 @@ void FactorizationCalculator::rangeBasedInputTest() {
         //prints out the individual factorization and respective calculation time
         if (reportIndividualFactorizations) infoSet.printPostCalcInfo();
 
-        stats->handleNewTime(std::move(infoSet));
+        stats->handleNewFactorizationData(std::move(infoSet));
     }
 }
 

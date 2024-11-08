@@ -5,11 +5,11 @@
 #include <functional>
 #include <limits>
 #include <iostream>
+#include <cstdio>
 #include <print>
 #include <string>
 #include <random>
 #include <optional>
-#include <unordered_set>
 #include "statset.hpp"
 #include "primes.hpp"
 #include "calculationinfo.hpp"
@@ -45,7 +45,7 @@ private:
     uint64_t inputCount, minN, maxN;
     bool reportIndividualFactorizations;
     
-    //collection of stats from upcoming calculation time data
+    //collection of stats from calculation time data
     //stores a flexible number of records in a few timeCategories based on the log of the count, with a minimum of 3
     //optional to postpone construction until settings have been set
     std::optional<StatSet> stats;
