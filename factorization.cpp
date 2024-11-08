@@ -7,7 +7,7 @@ Factorization::Factorization() {
     factors.reserve(11);
 }
 
-void Factorization::addNewFactor(const uint64_t base, const uint_fast8_t exp) {
+void Factorization::addNewFactor(const base_t base, const exp_t exp) {
     factorCount += exp; 
     factors.emplace_back(base, exp);
 }
@@ -33,4 +33,8 @@ const uint_fast8_t Factorization::getFactorCount() const {
 
 const uint_fast8_t Factorization::getUniqueFactorCount() const {
     return factors.size();
+}
+
+const Factorization::container_t& Factorization::viewFactors(void) const {
+    return factors;
 }
