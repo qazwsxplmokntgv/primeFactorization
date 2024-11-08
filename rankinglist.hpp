@@ -1,9 +1,7 @@
 #pragma once
 
-#include <algorithm>
 #include <print>
 #include <functional>
-#include <list>
 #include <set>
 #include "calculationinfo.hpp"
 #include "utils.hpp"
@@ -30,8 +28,9 @@ private:
     std::multiset<FactorCalculationInfo, Comp> rankedItems;
 
 public:
-    decltype(RankingList<Comp>::rankedItems)::const_iterator cbegin() const;
-    decltype(RankingList<Comp>::rankedItems)::const_iterator cend() const;
+    using container_t = decltype(RankingList<Comp>::rankedItems);
+    container_t::const_iterator cbegin() const;
+    container_t::const_iterator cend() const;
 };
 
 template<class Comp>
@@ -54,37 +53,39 @@ bool RankingList<Comp>::outranksWorstItem(const FactorCalculationInfo& newItem) 
 }
 
 template<class Comp>
-decltype(RankingList<Comp>::rankedItems)::const_iterator RankingList<Comp>::cbegin() const {
+RankingList<Comp>::container_t::const_iterator RankingList<Comp>::cbegin() const {
     return rankedItems.cbegin();
 }
 
 template<class Comp>
-decltype(RankingList<Comp>::rankedItems)::const_iterator RankingList<Comp>::cend() const {
+RankingList<Comp>::container_t::const_iterator RankingList<Comp>::cend() const {
     return rankedItems.cend();
 }
 
 template<class CompLeft, class CompRight>
-inline void printRecordLists(const RankingList<CompLeft>& leftRecordList, const RankingList<CompRight>& rightRecordList) {
+inline void printRecordLists(const RankingList<CompLeft>& leftRecordList, const RankingList<CompRight>& rightRecordList, FILE* outStream = stdout) {
     printRecordLists<CompLeft, CompRight>(leftRecordList, rightRecordList, 
         //default format shows rank and calcTime only
-        [](size_t i, const RankingList<CompLeft>& leftList){ return std::format("#{}: {}", i + 1, std::next(leftList.cbegin(), i)->calcTime); },
-        [](size_t i, const RankingList<CompRight>& rightList){ return std::format("#{}: {}", i + 1, std::next(rightList.cbegin(), i)->calcTime); });
+        [](const RankingList<CompLeft>::container_t::const_iterator& leftIt){ return std::format("{}", leftIt->calcTime); },
+        [](const RankingList<CompRight>::container_t::const_iterator& rightIt){ return std::format("{}", rightIt->calcTime); }, outStream
+    );
 }
 
 template<class CompLeft, class CompRight>
-inline void printRecordLists(const RankingList<CompLeft>& leftRecordList, const RankingList<CompRight>& rightRecordList, std::function<const std::string(size_t index, const RankingList<CompLeft>& list)>&& leftInfoFormat, std::function<const std::string(size_t index, const RankingList<CompRight>& list)>&& rightInfoFormat) {
-    auto leftIt = leftRecordList.cbegin(), rightIt = rightRecordList.cbegin();
-    for (unsigned i = 0; leftIt != leftRecordList.cend() && rightIt != rightRecordList.cend(); ++i) {
-        std::println("{:{}}{}\n{:{}}{}\n", 
+inline void printRecordLists(const RankingList<CompLeft>& leftRecordList, const RankingList<CompRight>& rightRecordList, 
+    std::function<const std::string(const typename RankingList<CompLeft>::container_t::const_iterator& leftIt)>&& leftInfoFormat, 
+    std::function<const std::string(const typename RankingList<CompRight>::container_t::const_iterator& rightIt)>&& rightInfoFormat, 
+    FILE* outStream = stdout) {
+    
+    unsigned rank = 1;
+    for (auto leftIt = leftRecordList.cbegin(), rightIt = rightRecordList.cbegin(); leftIt != leftRecordList.cend() && rightIt != rightRecordList.cend(); ++rank, std::advance(leftIt, 1), std::advance(rightIt, 1)) {
+        std::println(outStream, "{:{}}{}\n{:{}}{}\n", 
             //first line of info as specified in parameters
-            leftInfoFormat(i, leftRecordList), panelWidth,
-            rightInfoFormat(i, rightRecordList),
-            //second line is always n == factorization of n, doesn't need customization info 
+            std::format("#{}: {}", rank, leftInfoFormat(leftIt)), panelWidth,
+            std::format("#{}: {}", rank, rightInfoFormat(rightIt)),
+            //second line is always n == factorization of n, doesn't need custom formatting function 
             std::format("{} ={}", leftIt->n, leftIt->factorization.asString()), panelWidth,
             std::format("{} ={}", rightIt->n, rightIt->factorization.asString())
         );
-        
-        std::advance(leftIt, 1);
-        std::advance(rightIt, 1);
     }
 }
